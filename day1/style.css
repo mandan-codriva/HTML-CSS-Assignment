@@ -1,0 +1,81 @@
+/* Reset default spacing */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Main container (card layout) */
+.container {
+    background: white;
+    padding: 25px;
+    max-width: 400px;
+    width: 90%;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: 0.3s;
+}
+
+/* Hover effect */
+.container:hover {
+    transform: scale(1.02);
+}
+
+/* Heading styles */
+h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+h2 {
+    margin-top: 20px;
+    color: #555;
+}
+
+/* Paragraph */
+p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 15px 0;
+    color: #444;
+}
+
+/* Profile image */
+img {
+    display: block;
+    margin: 20px auto;
+    border-radius: 50%;
+    width: 150px;
+    border: 3px solid #333;
+}
+
+/* Links as buttons */
+a {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 80%;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+/* Hover effect on buttons */
+a:hover {
+    background-color: #0056b3;
+}
+
+/* Remove bullets from list (for intro page) */
+ul {
+    list-style: none;
+    padding: 0;
+}
