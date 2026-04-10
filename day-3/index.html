@@ -60,6 +60,7 @@
         box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
         outline: none;
       }
+
       .checkbox-group {
         margin-bottom: 15px;
       }
@@ -72,10 +73,22 @@
       .checkbox-group input {
         margin-right: 5px;
       }
+
       #terms {
         width: auto;
         margin-right: 5px;
       }
+
+      .skills-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .skills-group label {
+        font-weight: normal;
+      }
+
       button {
         width: 100%;
         padding: 12px;
@@ -92,6 +105,7 @@
         background: linear-gradient(to right, #2e7d32, #1b5e20);
         transform: scale(1.02);
       }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -110,6 +124,7 @@
 
     <div class="container">
       <h2>Registration Form</h2>
+
       <form action="#" method="POST">
         <label for="name">Full Name</label>
         <input
@@ -121,6 +136,7 @@
           pattern="[A-Za-z ]{3,}"
           title="Name should be at least 3 letters"
         />
+
         <label for="email">Email</label>
         <input
           type="email"
@@ -129,6 +145,7 @@
           placeholder="Enter your email"
           required
         />
+
         <label for="phone">Phone</label>
         <input
           type="tel"
@@ -139,11 +156,13 @@
           required
           title="Enter 10 digit phone number"
         />
+
         <label for="dob">Date of Birth</label>
         <input type="date" id="dob" name="dob" required />
 
         <label for="file">Upload Profile</label>
         <input type="file" id="file" name="file" />
+
         <label for="password">Password</label>
         <input
           type="password"
@@ -152,23 +171,28 @@
           pattern="[A-Za-z0-9@#$%^&+=]{6,12}"
           required
           placeholder="Min 6 characters AND Max 12 characters"
+        />
+
         <label>Skills</label>
-        <div class="checkbox-group">
-          <input type="checkbox" id="html" name="skills" value="html" />
-          <label for="html">HTML</label>
-
-          <input type="checkbox" id="css" name="skills" value="css" />
-          <label for="css">CSS</label>
-
-          <input type="checkbox" id="js" name="skills" value="js" />
-          <label for="js">JavaScript</label>
+        <div class="skills-group">
+          <label>
+            <input type="checkbox" name="skills" value="html" /> HTML
+          </label>
+          <label>
+            <input type="checkbox" name="skills" value="css" /> CSS
+          </label>
+          <label>
+            <input type="checkbox" name="skills" value="js" /> JavaScript
+          </label>
         </div>
+
         <label for="country">Country</label>
         <select id="country" name="country" required>
           <option value="">Select Country</option>
           <option>India</option>
           <option>USA</option>
         </select>
+
         <label for="message">Message</label>
         <textarea
           id="message"
@@ -176,8 +200,10 @@
           rows="3"
           placeholder="Your message"
         ></textarea>
-        <input type="checkbox" id="terms" required />
+
+        <input type="checkbox" id="terms" name="terms" required />
         <label for="terms">I agree to Terms & Conditions</label>
+
         <button type="submit">Register</button>
       </form>
     </div>
