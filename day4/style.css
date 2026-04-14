@@ -203,3 +203,22 @@ figcaption {
   transform: scale(1.03);
   background: linear-gradient(135deg, #e68900, #e64a19);
 }
+aside nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+aside nav li {
+  margin-bottom: 8px;
+}
+
+aside nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+aside nav a:hover {
+  color: #ff9800;
+}
