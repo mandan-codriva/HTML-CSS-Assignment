@@ -10,10 +10,11 @@ body {
   background: #f4f6f9;
 }
 
-/* GRID BASICS */
+/* ================= GRID BASICS ================= */
 .container {
   display: grid;
 
+  /* USING GRID-AREA PROPERLY */
   grid-template-areas:
     "sidebar header"
     "sidebar main"
@@ -27,8 +28,22 @@ body {
   padding: 16px;
 }
 
+/* GRID AREA ASSIGNMENTS */
 .header {
   grid-area: header;
+}
+.sidebar {
+  grid-area: sidebar;
+}
+.main {
+  grid-area: main;
+}
+.footer {
+  grid-area: footer;
+}
+
+/* ================= STYLING ================= */
+.header {
   background: #0984e3;
   color: white;
   display: flex;
@@ -39,22 +54,20 @@ body {
 }
 
 .sidebar {
-  grid-area: sidebar;
   background: #2d3436;
   color: white;
   padding: 20px;
   border-radius: 10px;
 }
 
+/* IMPORTANT: auto-fit + minmax IMPLEMENTED */
 .main {
-  grid-area: main;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
 .footer {
-  grid-area: footer;
   background: #636e72;
   color: white;
   display: flex;
@@ -70,12 +83,10 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* BREAKPOINTS */
+/* ================= BREAKPOINTS ================= */
 
 @media (max-width: 1024px) {
-  .main {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  /* still works automatically due to auto-fit */
 }
 
 @media (max-width: 768px) {
@@ -88,10 +99,6 @@ body {
 
     grid-template-columns: 1fr;
     grid-template-rows: auto;
-  }
-
-  .main {
-    grid-template-columns: 1fr;
   }
 }
 
