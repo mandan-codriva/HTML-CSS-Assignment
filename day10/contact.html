@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Stay - StayEase</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="container nav-content">
+    <h1 class="logo">StayEase</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="contact.html">Book</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section form-section">
+  <div class="container">
+    <h2 class="section-title">Book Your Stay</h2>
+
+    <form class="form" action="#" method="POST" novalidate>
+
+      <label for="name">Full Name</label>
+      <input 
+        type="text" 
+        id="name" 
+        name="fullname"
+        placeholder="Enter your name"
+        required 
+        pattern="[A-Za-z ]{3,}"
+        title="Name should contain only letters and at least 3 characters"
+      >
+
+      <label for="email">Email Address</label>
+      <input 
+        type="email" 
+        id="email" 
+        name="email"
+        placeholder="example@email.com"
+        required
+      >
+
+      <!-- PHONE -->
+      <label for="phone">Phone Number</label>
+      <input 
+        type="tel" 
+        id="phone" 
+        name="phone"
+        placeholder="10 digit number"
+        required 
+        pattern="[0-9]{10}"
+        title="Enter a valid 10-digit phone number"
+      >
+
+      <!-- DATES -->
+      <label for="checkin">Check-in Date</label>
+      <input type="date" id="checkin" name="checkin" required>
+
+      <label for="checkout">Check-out Date</label>
+      <input type="date" id="checkout" name="checkout" required>
+
+      <!-- ROOM -->
+      <label for="room">Room Type</label>
+      <select id="room" name="room" required>
+        <option value="">Select Room</option>
+        <option value="deluxe">Deluxe</option>
+        <option value="suite">Suite</option>
+        <option value="standard">Standard</option>
+      </select>
+
+      <!-- GENDER -->
+      <label>Gender</label>
+      <div class="inline">
+        <label>
+          <input type="radio" name="gender" value="male" required> Male
+        </label>
+        <label>
+          <input type="radio" name="gender" value="female"> Female
+        </label>
+      </div>
+
+      <!-- EXTRAS -->
+      <label>Extras</label>
+      <div class="inline">
+        <label>
+          <input type="checkbox" name="extras" value="breakfast"> Breakfast
+        </label>
+        <label>
+          <input type="checkbox" name="extras" value="pool"> Pool Access
+        </label>
+      </div>
+
+      <!-- MESSAGE -->
+      <label for="message">Special Requests</label>
+      <textarea 
+        id="message" 
+        name="message" 
+        rows="4" 
+        placeholder="Any special request..."
+      ></textarea>
+
+      <!-- SUBMIT -->
+      <button type="submit" class="btn">Confirm Booking</button>
+
+    </form>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>© 2026 StayEase</p>
+</footer>
+
+</body>
+</html>
