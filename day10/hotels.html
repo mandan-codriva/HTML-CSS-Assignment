@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse all available hotels - StayEase">
+  <title>Hotels - StayEase</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container nav-content">
+    
+    <h1 class="logo">
+      <span>Stay</span>Ease
+    </h1>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="hotels.html" class="active">Hotels</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="nav-buttons">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Signup</a>
+    </div>
+
+  </div>
+</header>
+
+<main>
+
+<!-- PAGE HEADER -->
+<section class="hero-small">
+  <div class="overlay"></div>
+  <div class="container hero-content">
+    <h2>Browse All Hotels</h2>
+    <p>Choose from our exclusive collection of premium hotels and resorts</p>
+  </div>
+</section>
+
+<!-- SEARCH & FILTER SECTION -->
+<section class="section search-filter-section">
+  <div class="container">
+    <div class="filter-header">
+      <h3>Find Your Perfect Stay</h3>
+      <p>Search and filter from our collection of premium hotels</p>
+    </div>
+    
+    <div class="search-filter-wrapper">
+      <div class="search-box">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search hotels by name or location..." class="search-input">
+        <button type="button" class="clear-btn" id="clearSearch" style="display:none;">✕</button>
+      </div>
+
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="filterPrice">💰 Price Range</label>
+          <select id="filterPrice" class="filter-select">
+            <option value="">All Price Ranges</option>
+            <option value="budget">Budget (₹0 - ₹2,000)</option>
+            <option value="moderate">Moderate (₹2,000 - ₹5,000)</option>
+            <option value="premium">Premium (₹5,000+)</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterLocation">📍 Location</label>
+          <select id="filterLocation" class="filter-select">
+            <option value="">All Locations</option>
+            <option value="delhi">New Delhi</option>
+            <option value="goa">Goa</option>
+            <option value="mumbai">Mumbai</option>
+            <option value="shimla">Shimla</option>
+            <option value="bangalore">Bangalore</option>
+            <option value="jaipur">Jaipur</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterRating">⭐ Rating</label>
+          <select id="filterRating" class="filter-select">
+            <option value="">All Ratings</option>
+            <option value="5">5 Stars</option>
+            <option value="4">4+ Stars</option>
+            <option value="3">3+ Stars</option>
+          </select>
+        </div>
+
+        <button class="reset-filters-btn" id="resetFilters">Reset Filters</button>
+      </div>
+
+      <div class="results-count">
+        <span id="resultsCount">Showing all hotels</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOTELS GRID -->
+<section class="section hotels-section">
+  <div class="container">
+    <h2 class="section-title">Our Hotels</h2>
+
+    <div class="grid" id="hotelsGrid">
+
+      <!-- HOTEL 1 -->
+      <article class="card" data-price="4500">
+        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80" alt="Luxury Palace">
+        <div class="card-body">
+          <h3>Luxury Palace</h3>
+          <div class="hotel-info">
+            <span>📍 New Delhi, India</span>
+            <p>₹4,500 <small>/ night</small></p>
+          </div>
+          <button class="btn-outline view-btn">View Details</button>
+        </div>
+      </article>
+
+      <!-- HOTEL 2 -->
+      <article class="card" data-price="6200">
+        <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=900&q=80" alt="Ocean Resort">
+        <div class="card-body">
+          <h3>Ocean Resort</h3>
+          <div class="hotel-info">
+            <span>📍 Goa, India</span>
+            <p>₹6,200 <small>/ night</small></p>
+          </div>
+          <button class="btn-outline view-btn">View Details</button>
+        </div>
+      </article>
+
+      <!-- HOTEL 3 -->
+      <article class="card" data-price="3200">
+        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=900&q=80" alt="City Hotel">
+        <div class="card-body">
+          <h3>City Hotel</h3>
+          <div class="hotel-info">
+            <span>📍 Mumbai, India</span>
+            <p>₹3,200 <small>/ night</small></p>
+          </div>
+          <button class="btn-outline view-btn">View Details</button>
+        </div>
+      </article>
+
+      <!-- HOTEL 4 -->
+      <article class="card" data-price="5800">
+        <img src="https://images.unsplash.com/photo-1564501049351-005e2ceddc51?auto=format&fit=crop&w=900&q=80" alt="Mountain View Resort">
+        <div class="card-body">
+          <h3>Mountain View Resort</h3>
+          <div class="hotel-info">
+            <span>📍 Shimla, India</span>
+            <p>₹5,800 <small>/ night</small></p>
+          </div>
+          <button class="btn-outline view-btn">View Details</button>
+        </div>
+      </article>
+
+      <!-- HOTEL 5 -->
+      <article class="card" data-price="2500">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80" alt="Budget Inn">
+        <div class="card-body">
+          <h3>Budget Inn</h3>
+          <div class="hotel-info">
+            <span>📍 Bangalore, India</span>
+            <p>₹2,500 <small>/ night</small></p>
+          </div>
+          <button class="btn-outline view-btn">View Details</button>
+        </div>
+      </article>
+
+      <!-- HOTEL 6 -->
+      <article class="card" data-price="7500">
+        <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=900&q=80" alt="Palace Grand">
+        <div class="card-body">
+          <h3>Palace Grand</h3>
+          <div class="hotel-info">
+            <span>📍 Jaipur, India</span>
+            <p>₹7,500 <small>/ night</small></p>
+          </div>
+          <button class="btn-outline view-btn">View Details</button>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta">
+  <div class="container cta-content">
+    <h2>Found your perfect hotel?</h2>
+    <a href="signup.html" class="cta-btn">Book Now</a>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>© 2026 StayEase. All rights reserved.</p>
+</footer>
+
+<script>
+  // Search and filter functionality
+  const searchInput = document.getElementById('searchInput');
+  const filterPrice = document.getElementById('filterPrice');
+  const filterLocation = document.getElementById('filterLocation');
+  const filterRating = document.getElementById('filterRating');
+  const hotelsGrid = document.getElementById('hotelsGrid');
+  const cards = hotelsGrid.querySelectorAll('.card');
+  const clearSearch = document.getElementById('clearSearch');
+  const resetFilters = document.getElementById('resetFilters');
+  const resultsCount = document.getElementById('resultsCount');
+
+  // Hotel data with ratings and locations
+  const hotelData = {
+    'Luxury Palace': { location: 'delhi', rating: 5 },
+    'Ocean Resort': { location: 'goa', rating: 5 },
+    'City Hotel': { location: 'mumbai', rating: 4 },
+    'Mountain View Resort': { location: 'shimla', rating: 4 },
+    'Budget Inn': { location: 'bangalore', rating: 3 },
+    'Palace Grand': { location: 'jaipur', rating: 5 }
+  };
+
+  function filterHotels() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const priceFilter = filterPrice.value;
+    const locationFilter = filterLocation.value;
+    const ratingFilter = filterRating.value;
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const hotelName = card.querySelector('h3').textContent;
+      const hotelLocation = card.querySelector('.hotel-info span').textContent.toLowerCase();
+      const price = parseInt(card.getAttribute('data-price'));
+      
+      const data = hotelData[hotelName] || {};
+      const location = data.location || '';
+      const rating = data.rating || 0;
+
+      let matchesSearch = hotelName.toLowerCase().includes(searchTerm) || hotelLocation.includes(searchTerm);
+      let matchesPrice = true;
+      let matchesLocation = !locationFilter || location === locationFilter;
+      let matchesRating = true;
+
+      // Price filtering
+      if (priceFilter === 'budget') {
+        matchesPrice = price <= 2000;
+      } else if (priceFilter === 'moderate') {
+        matchesPrice = price > 2000 && price <= 5000;
+      } else if (priceFilter === 'premium') {
+        matchesPrice = price > 5000;
+      }
+
+      // Rating filtering
+      if (ratingFilter === '5') {
+        matchesRating = rating >= 5;
+      } else if (ratingFilter === '4') {
+        matchesRating = rating >= 4;
+      } else if (ratingFilter === '3') {
+        matchesRating = rating >= 3;
+      }
+
+      const isVisible = matchesSearch && matchesPrice && matchesLocation && matchesRating;
+      card.style.display = isVisible ? 'block' : 'none';
+      if (isVisible) visibleCount++;
+    });
+
+    // Update results count
+    if (visibleCount === 0) {
+      resultsCount.textContent = 'No hotels found';
+    } else if (visibleCount === 1) {
+      resultsCount.textContent = 'Showing 1 hotel';
+    } else {
+      resultsCount.textContent = `Showing ${visibleCount} hotels`;
+    }
+
+    // Show/hide clear button
+    clearSearch.style.display = searchInput.value ? 'block' : 'none';
+  }
+
+  // Event listeners
+  searchInput.addEventListener('keyup', filterHotels);
+  filterPrice.addEventListener('change', filterHotels);
+  filterLocation.addEventListener('change', filterHotels);
+  filterRating.addEventListener('change', filterHotels);
+
+  // Clear search
+  clearSearch.addEventListener('click', () => {
+    searchInput.value = '';
+    searchInput.focus();
+    clearSearch.style.display = 'none';
+    filterHotels();
+  });
+
+  // Reset all filters
+  resetFilters.addEventListener('click', () => {
+    searchInput.value = '';
+    filterPrice.value = '';
+    filterLocation.value = '';
+    filterRating.value = '';
+    clearSearch.style.display = 'none';
+    filterHotels();
+  });
+
+  // View Details button functionality
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const hotelName = this.closest('.card').querySelector('h3').textContent;
+      alert(`Viewing details for ${hotelName}`);
+    });
+  });
+</script>
+
+</body>
+</html>
