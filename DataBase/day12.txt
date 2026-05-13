@@ -1,0 +1,676 @@
+// =====================================
+// MongoDB Advanced Project (FINAL)
+// =====================================
+
+use ecommerce_db
+
+// =====================================
+// Task 1: Schema Design with Validation
+// =====================================
+
+// Drop old collections (safe reset)
+db.users.drop()
+db.orders.drop()
+
+// ---------------- USERS COLLECTION ----------------
+db.createCollection("users", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["name", "email", "age", "address", "isActive"],
+      properties: {
+        name: { bsonType: "string" },
+        email: { bsonType: "string" },
+        age: { bsonType: "int", minimum: 18, maximum: 60 },
+        isActive: { bsonType: "bool" },
+        address: {
+          bsonType: "object",
+          required: ["city", "pincode"],
+          properties: {
+            city: { bsonType: "string" },
+            pincode: { bsonType: "int" }
+          }
+        }
+      }
+    }
+  }
+})
+
+// ---------------- ORDERS COLLECTION ----------------
+db.createCollection("orders", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["user_id", "products", "total_amount", "status", "created_at"],
+      properties: {
+        user_id: { bsonType: "objectId" },
+        total_amount: { bsonType: "number", minimum: 0 },
+        status: {
+          enum: ["PLACED", "CANCELLED"]
+        },
+        created_at: { bsonType: "date" },
+        products: {
+          bsonType: "array",
+          minItems: 1,
+          items: {
+            bsonType: "object",
+            required: ["name", "price", "quantity"],
+            properties: {
+              name: { bsonType: "string" },
+              price: { bsonType: "number", minimum: 0 },
+              quantity: { bsonType: "int", minimum: 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+})
+
+// =====================================
+// Insert Users (15)
+// =====================================
+
+db.users.insertMany([
+{ name:"Aman", email:"aman@gmail.com", age:25, address:{city:"Delhi", pincode:110001}, isActive:true },
+{ name:"Ravi", email:"ravi@gmail.com", age:22, address:{city:"Noida", pincode:201301}, isActive:true },
+{ name:"Neha", email:"neha@gmail.com", age:28, address:{city:"Mumbai", pincode:400001}, isActive:false },
+{ name:"Karan", email:"karan@gmail.com", age:27, address:{city:"Delhi", pincode:110002}, isActive:true },
+{ name:"Priya", email:"priya@gmail.com", age:24, address:{city:"Pune", pincode:411001}, isActive:true },
+{ name:"John", email:"john@gmail.com", age:30, address:{city:"Bangalore", pincode:560001}, isActive:false },
+{ name:"Simran", email:"simran@gmail.com", age:21, address:{city:"Delhi", pincode:110003}, isActive:true },
+{ name:"Amit", email:"amit@gmail.com", age:35, address:{city:"Chennai", pincode:600001}, isActive:false },
+{ name:"Pooja", email:"pooja@gmail.com", age:29, address:{city:"Delhi", pincode:110004}, isActive:true },
+{ name:"Rahul", email:"rahul@gmail.com", age:26, address:{city:"Noida", pincode:201302}, isActive:true },
+{ name:"Sneha", email:"sneha@gmail.com", age:23, address:{city:"Mumbai", pincode:400002}, isActive:false },
+{ name:"Arjun", email:"arjun@gmail.com", age:28, address:{city:"Delhi", pincode:110005}, isActive:true },
+{ name:"Meera", email:"meera@gmail.com", age:24, address:{city:"Mumbai", pincode:400003}, isActive:false },
+{ name:"Kabir", email:"kabir@gmail.com", age:31, address:{city:"Delhi", pincode:110006}, isActive:true },
+{ name:"Anjali", email:"anjali@gmail.com", age:27, address:{city:"Pune", pincode:411002}, isActive:true }
+])
+
+var users = db.users.find().toArray()
+
+// =====================================
+// Insert Orders (20)
+// =====================================
+
+db.orders.insertMany([
+{ user_id:users[0]._id, products:[{name:"Laptop",price:70000,quantity:1}], total_amount:70000, status:"PLACED", created_at:new Date("2025-01-01")},
+{ user_id:users[0]._id, products:[{name:"Mouse",price:500,quantity:2}], total_amount:1000, status:"PLACED", created_at:new Date("2025-01-02")},
+{ user_id:users[1]._id, products:[{name:"Phone",price:20000,quantity:1}], total_amount:20000, status:"CANCELLED", created_at:new Date("2025-01-05")},
+{ user_id:users[2]._id, products:[{name:"Tablet",price:30000,quantity:1}], total_amount:30000, status:"PLACED", created_at:new Date("2025-02-01")},
+{ user_id:users[3]._id, products:[{name:"Shoes",price:3000,quantity:2}], total_amount:6000, status:"PLACED", created_at:new Date("2025-02-10")},
+{ user_id:users[4]._id, products:[{name:"Bag",price:2000,quantity:1}], total_amount:2000, status:"PLACED", created_at:new Date("2025-02-15")},
+{ user_id:users[5]._id, products:[{name:"TV",price:50000,quantity:1}], total_amount:50000, status:"PLACED", created_at:new Date("2025-03-01")},
+{ user_id:users[6]._id, products:[{name:"Watch",price:8000,quantity:1}], total_amount:8000, status:"PLACED", created_at:new Date("2025-03-05")},
+{ user_id:users[7]._id, products:[{name:"Printer",price:7000,quantity:1}], total_amount:7000, status:"CANCELLED", created_at:new Date("2025-03-10")},
+{ user_id:users[8]._id, products:[{name:"Desk",price:9000,quantity:1}], total_amount:9000, status:"PLACED", created_at:new Date("2025-03-15")},
+{ user_id:users[9]._id, products:[{name:"Chair",price:4000,quantity:1}], total_amount:4000, status:"PLACED", created_at:new Date("2025-03-20")},
+{ user_id:users[10]._id, products:[{name:"Lamp",price:1000,quantity:2}], total_amount:2000, status:"PLACED", created_at:new Date("2025-03-25")},
+{ user_id:users[11]._id, products:[{name:"Camera",price:45000,quantity:1}], total_amount:45000, status:"PLACED", created_at:new Date("2025-04-01")},
+{ user_id:users[12]._id, products:[{name:"Router",price:3000,quantity:1}], total_amount:3000, status:"PLACED", created_at:new Date("2025-04-05")},
+{ user_id:users[13]._id, products:[{name:"SSD",price:6000,quantity:1}], total_amount:6000, status:"PLACED", created_at:new Date("2025-04-10")},
+{ user_id:users[14]._id, products:[{name:"Console",price:40000,quantity:1}], total_amount:40000, status:"PLACED", created_at:new Date("2025-04-15")}
+])
+
+// =====================================
+// MongoDB Advanced - Tasks 2 to 7
+// =====================================
+
+use ecommerce_db
+
+// =====================================
+// Task 2: Aggregation Basics
+// =====================================
+
+// Total Orders
+print("---- Total Orders ----")
+db.orders.aggregate([
+  { $count: "total_orders" }
+])
+
+// Total Revenue
+print("---- Total Revenue ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: null,
+      total_revenue: { $sum: "$total_amount" }
+    }
+  }
+])
+
+// Average Order Value
+print("---- Average Order Value ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: null,
+      avg_order_value: { $avg: "$total_amount" }
+    }
+  }
+])
+
+// =====================================
+// Task 3: Grouping
+// =====================================
+
+// Spend per User
+print("---- Spend per User ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total_spent: { $sum: "$total_amount" }
+    }
+  }
+])
+
+// Order Count per User
+print("---- Order Count per User ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total_orders: { $sum: 1 }
+    }
+  }
+])
+
+// Top 5 Users
+print("---- Top 5 Users ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total_spent: { $sum: "$total_amount" }
+    }
+  },
+  { $sort: { total_spent: -1 } },
+  { $limit: 5 }
+])
+
+// Orders per Status
+print("---- Orders per Status ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$status",
+      total_orders: { $sum: 1 }
+    }
+  }
+])
+
+// =====================================
+// Task 4: Nested Aggregation
+// =====================================
+
+// Unwind Products
+print("---- Unwind Products ----")
+db.orders.aggregate([
+  { $unwind: "$products" }
+])
+
+// Total Quantity per Product
+print("---- Quantity per Product ----")
+db.orders.aggregate([
+  { $unwind: "$products" },
+  {
+    $group: {
+      _id: "$products.name",
+      total_quantity: { $sum: "$products.quantity" }
+    }
+  }
+])
+
+// Revenue per Product
+print("---- Revenue per Product ----")
+db.orders.aggregate([
+  { $unwind: "$products" },
+  {
+    $group: {
+      _id: "$products.name",
+      revenue: {
+        $sum: {
+          $multiply: ["$products.price", "$products.quantity"]
+        }
+      }
+    }
+  }
+])
+
+// Top Product
+print("---- Top Product ----")
+db.orders.aggregate([
+  { $unwind: "$products" },
+  {
+    $group: {
+      _id: "$products.name",
+      total_quantity: { $sum: "$products.quantity" }
+    }
+  },
+  { $sort: { total_quantity: -1 } },
+  { $limit: 1 }
+])
+
+// =====================================
+// Task 5: Real Scenarios
+// =====================================
+
+// Dashboard
+print("---- Dashboard ----")
+db.orders.aggregate([
+  {
+    $facet: {
+      stats: [
+        {
+          $group: {
+            _id: null,
+            total_orders: { $sum: 1 },
+            total_revenue: { $sum: "$total_amount" }
+          }
+        }
+      ],
+      top_user: [
+        {
+          $group: {
+            _id: "$user_id",
+            total_spent: { $sum: "$total_amount" }
+          }
+        },
+        { $sort: { total_spent: -1 } },
+        { $limit: 1 }
+      ],
+      top_product: [
+        { $unwind: "$products" },
+        {
+          $group: {
+            _id: "$products.name",
+            qty: { $sum: "$products.quantity" }
+          }
+        },
+        { $sort: { qty: -1 } },
+        { $limit: 1 }
+      ]
+    }
+  }
+])
+
+// Users Spending > 20000
+print("---- Users Spending > 20000 ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total_spent: { $sum: "$total_amount" }
+    }
+  },
+  { $match: { total_spent: { $gt: 20000 } } }
+])
+
+// Orders with > 3 Products
+print("---- Orders with > 3 Products ----")
+db.orders.find({
+  $expr: { $gt: [{ $size: "$products" }, 3] }
+})
+
+// City-wise Revenue
+print("---- City-wise Revenue ----")
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "users",
+      localField: "user_id",
+      foreignField: "_id",
+      as: "user"
+    }
+  },
+  { $unwind: "$user" },
+  {
+    $group: {
+      _id: "$user.address.city",
+      revenue: { $sum: "$total_amount" }
+    }
+  }
+])
+
+// Revenue for PLACED Orders
+print("---- Revenue for PLACED Orders ----")
+db.orders.aggregate([
+  { $match: { status: "PLACED" } },
+  {
+    $group: {
+      _id: null,
+      revenue: { $sum: "$total_amount" }
+    }
+  }
+])
+
+// =====================================
+// Task 6: Projection
+// =====================================
+
+print("---- Projection: Name, Spend, Orders ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total_spent: { $sum: "$total_amount" },
+      total_orders: { $sum: 1 }
+    }
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "_id",
+      foreignField: "_id",
+      as: "user"
+    }
+  },
+  { $unwind: "$user" },
+  {
+    $project: {
+      _id: 0,
+      name: "$user.name",
+      total_spent: 1,
+      total_orders: 1
+    }
+  }
+])
+
+// =====================================
+// Task 7: Final Analytics
+// =====================================
+
+// User Analytics
+print("---- User Analytics ----")
+db.users.aggregate([
+  {
+    $facet: {
+      total_users: [{ $count: "count" }],
+      active_users: [
+        { $match: { isActive: true } },
+        { $count: "count" }
+      ],
+      inactive_users: [
+        { $match: { isActive: false } },
+        { $count: "count" }
+      ]
+    }
+  }
+])
+
+// Order Analytics
+print("---- Order Analytics ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: null,
+      total_orders: { $sum: 1 },
+      total_revenue: { $sum: "$total_amount" },
+      avg_order_value: { $avg: "$total_amount" }
+    }
+  }
+])
+
+// Product Analytics
+print("---- Product Analytics ----")
+db.orders.aggregate([
+  { $unwind: "$products" },
+  {
+    $group: {
+      _id: "$products.name",
+      total_qty: { $sum: "$products.quantity" },
+      revenue: {
+        $sum: { $multiply: ["$products.price", "$products.quantity"] }
+      }
+    }
+  },
+  { $sort: { total_qty: -1 } }
+])
+
+// Monthly Revenue Trend
+print("---- Monthly Revenue Trend ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: { $month: "$created_at" },
+      revenue: { $sum: "$total_amount" }
+    }
+  },
+  { $sort: { "_id": 1 } }
+])
+
+// City-wise Revenue (Advanced)
+print("---- City-wise Revenue (Advanced) ----")
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "users",
+      localField: "user_id",
+      foreignField: "_id",
+      as: "user"
+    }
+  },
+  { $unwind: "$user" },
+  {
+    $group: {
+      _id: "$user.address.city",
+      revenue: { $sum: "$total_amount" }
+    }
+  }
+])
+// =====================================
+// Task 8: Optimization & Concepts
+// =====================================
+
+// =====================================
+// 8.1 WHY AGGREGATION PIPELINE IS POWERFUL
+// =====================================
+
+// Concept:
+// Aggregation pipeline processes data in stages (like a pipeline)
+
+// Example:
+print("---- Pipeline Example ----")
+db.orders.aggregate([
+  { $match: { status: "PLACED" } },     // Filter early
+  { $group: { _id: "$user_id", total: { $sum: "$total_amount" } } },
+  { $sort: { total: -1 } }
+])
+
+// WHY powerful?
+// ✔ Single query instead of multiple queries
+// ✔ Efficient for analytics
+// ✔ Works like data processing pipeline
+
+
+
+// =====================================
+// 8.2 WHEN TO USE $unwind
+// =====================================
+
+// Use $unwind when working with arrays
+
+print("---- Without Unwind (Wrong for product analytics) ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$products.name", // ❌ Won’t work properly (array)
+      count: { $sum: 1 }
+    }
+  }
+])
+
+print("---- With Unwind (Correct) ----")
+db.orders.aggregate([
+  { $unwind: "$products" }, // ✔ flatten array
+  {
+    $group: {
+      _id: "$products.name",
+      total_qty: { $sum: "$products.quantity" }
+    }
+  }
+])
+
+// RULE:
+// Use $unwind when:
+// ✔ Field is array
+// ✔ You need per-item analysis
+
+
+
+// =====================================
+// 8.3 SQL GROUP BY vs MongoDB $group
+// =====================================
+
+// SQL:
+// SELECT user_id, SUM(total_amount)
+// FROM orders
+// GROUP BY user_id;
+
+// MongoDB:
+print("---- MongoDB GROUP ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total_spent: { $sum: "$total_amount" }
+    }
+  }
+])
+
+// Mapping:
+// SQL GROUP BY → Mongo $group
+// SQL SUM() → Mongo $sum
+// SQL COUNT() → Mongo $sum:1
+
+
+
+// =====================================
+// 8.4 PERFORMANCE OPTIMIZATION
+// =====================================
+
+// 🔥 IMPORTANT RULES
+
+// 1. USE $match EARLY
+print("---- Optimized Query (match early) ----")
+db.orders.aggregate([
+  { $match: { status: "PLACED" } }, // ✔ filter first
+  {
+    $group: {
+      _id: "$user_id",
+      total: { $sum: "$total_amount" }
+    }
+  }
+])
+
+// BAD (slow):
+print("---- Non-Optimized Query ----")
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$user_id",
+      total: { $sum: "$total_amount" }
+    }
+  },
+  { $match: { total: { $gt: 10000 } } }
+])
+
+// WHY?
+// Filtering early reduces data processed
+
+
+
+// 2. USE INDEXES
+print("---- Create Index ----")
+db.orders.createIndex({ user_id: 1 })
+
+// Test performance
+print("---- Explain Query ----")
+db.orders.explain("executionStats").aggregate([
+  { $match: { user_id: ObjectId("REPLACE_ID") } }
+])
+
+
+// 3. AVOID UNNECESSARY $unwind
+// $unwind increases number of documents → can slow queries
+
+
+
+// 4. USE $project TO REDUCE DATA
+print("---- Use Project Early ----")
+db.orders.aggregate([
+  {
+    $project: {
+      user_id: 1,
+      total_amount: 1
+    }
+  },
+  {
+    $group: {
+      _id: "$user_id",
+      total: { $sum: "$total_amount" }
+    }
+  }
+])
+
+
+// 5. LIMIT DATA WHEN POSSIBLE
+print("---- Limit Example ----")
+db.orders.aggregate([
+  { $sort: { total_amount: -1 } },
+  { $limit: 5 }
+])
+
+
+// =====================================
+// FINAL SUMMARY (IMPORTANT)
+// =====================================
+
+// ✔ Use $match early
+// ✔ Use indexes
+// ✔ Use $unwind only when needed
+// ✔ Use $project to reduce data
+// ✔ Use $limit for large datasets
+
+
+// =====================================
+// Task 9: Index
+// =====================================
+db.orders.createIndex({ user_id:1 })
+
+// =====================================
+// Task 10: FINAL PIPELINE
+// =====================================
+
+db.orders.aggregate([
+{ $match:{ status:"PLACED" } },
+{
+  $group:{
+    _id:"$user_id",
+    total_spent:{ $sum:"$total_amount" },
+    total_orders:{ $sum:1 }
+  }
+},
+{
+  $lookup:{
+    from:"users",
+    localField:"_id",
+    foreignField:"_id",
+    as:"user"
+  }
+},
+{ $unwind:"$user" },
+{ $match:{ "user.isActive":true } },
+{
+  $project:{
+    _id:0,
+    name:"$user.name",
+    city:"$user.address.city",
+    total_spent:1,
+    total_orders:1
+  }
+}
+])

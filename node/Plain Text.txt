@@ -1,0 +1,302 @@
+ What is JavaScript?
+
+JavaScript is a programming language mainly used to make websites interactive and dynamic. It runs inside web browsers and can also run outside browsers using environments like Node.js.
+ With JavaScript, developers can create features such as buttons, forms, animations, games, APIs, and real-time applications.
+
+Real-Life Analogy
+
+HTML = Skeleton (structure)
+CSS = Clothes and appearance (design)
+JavaScript = Brain and muscles (behavior and actions)
+
+Without JavaScript, a webpage would just sit there like a statue. JavaScript gives it life and interaction.
+
+Example:
+
+Clicking a button
+Showing a popup
+Updating content without refreshing
+Playing videos automatically
+
+
+JavaScript Versions
+
+ES5 (ECMAScript 5)
+
+Released in 2009
+
+Key Features
+var keyword
+Functions
+Arrays and objects improvements
+JSON support
+Strict mode ("use strict")
+Example
+var name = "John";
+
+function greet() {
+  console.log("Hello");
+}
+Limitations
+No block scope
+Difficult async handling
+More verbose syntax
+ES6 (ECMAScript 2015)
+
+Released in 2015
+
+This was one of the biggest updates to JavaScript.
+
+Key Features
+let and const
+Arrow functions
+Template literals
+Classes
+Promises
+Destructuring
+Modules
+Default parameters
+Example
+const name = "John";
+
+const greet = () => {
+  console.log(`Hello ${name}`);
+};
+Improvements Over ES5
+Cleaner syntax
+Better variable scoping
+Easier asynchronous programming
+More readable and maintainable code
+ES2020+
+
+Modern JavaScript improvements after ES6.
+
+Key Features
+Optional chaining ?.
+Nullish coalescing ??
+BigInt
+Async/Await improvements
+Dynamic imports
+Promise.allSettled()
+Example
+const user = {
+  profile: {
+    name: "Rahul"
+  }
+};
+
+console.log(user?.profile?.name);
+Improvements Over ES6
+Safer property access
+Better async handling
+Cleaner modern syntax
+Improved performance and readability
+
+
+
+2. Run JavaScript
+
+Method 1: Browser Console
+Steps
+	
+Open Chrome/Firefox
+Right click → Inspect
+Open Console tab
+Write JavaScript
+Example
+console.log("Hello JavaScript");
+Method 2: HTML File Using <script> Tag
+Example
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JavaScript Example</title>
+</head>
+<body>
+
+<h1>Hello World</h1>
+
+<script>
+  console.log("JavaScript inside HTML");
+</script>
+
+</body>
+</html>
+Steps
+Save file as index.html
+Open in browser
+Open console to see output
+Method 3: Node.js
+Install Node.js
+Download from:
+Node.js Official Website
+Install normally
+Verify Installation
+
+Open terminal:
+
+node -v
+Create JavaScript File
+
+Create app.js
+
+console.log("Running with Node.js");
+Run File
+node app.js
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Alert Example</title>
+</head>
+<body>
+
+<h1>Welcome</h1>
+
+<script>
+  alert("Hello! JavaScript is working.");
+</script>
+
+</body>
+</html>
+
+
+
+
+console.log(a);
+
+var a = 10;
+
+
+Output: undefined
+
+var declarations are hoisted and initialized with undefined
+
+
+
+console.log(b);
+
+let b = 20;
+
+
+
+let is hoisted but stays inside the Temporal Dead Zone (TDZ) until initialization.
+
+
+
+console.log(c);
+
+const c = 30;
+
+const is also hoisted but remains in TDZ until initialized.
+
+
+
+
+Coding Assignment:
+
+For Array Specific
+
+Recurssive approach
+
+
+function arrayRecurssiveFlatern(input){
+
+    const flattern = [];
+
+    if(Array.isArray(input)){
+
+        input.forEach(item => {
+
+            const output = arrayRecurssiveFlatern(item);
+
+            flattern.push(...output);
+
+        });
+
+    } else {
+
+        flattern.push(input);
+
+    }
+
+    return flattern;
+}
+
+
+
+Iterative approach:
+
+function flattenArrayIteratively(arr) {
+  const stack = [...arr];
+  const flattened = [];
+
+  while (stack.length) {
+    const current = stack.shift();
+
+    if (Array.isArray(current)) {
+      stack.unshift(...current);
+    } else {
+      flattened.push(current);
+    }
+  }
+
+  return flattened;
+}
+
+
+
+
+
+function deepFlatten(obj) {
+  const result = {};
+
+  function helper(current, path) {
+
+    // Handle null
+    if (current === null) {
+      result[path] = null;
+      return;
+    }
+
+    // Handle arrays
+    if (Array.isArray(current)) {
+
+      current.forEach((item, index) => {
+
+        helper(item, `${path}[${index}]`);
+
+      });
+
+      return;
+    }
+
+    // Handle objects
+    if (typeof current === "object") {
+
+      for (const key in current) {
+
+        const newPath = path
+          ? `${path}.${key}`
+          : key;
+
+        helper(current[key], newPath);
+      }
+
+      return;
+    }
+
+    // Transform strings
+    if (typeof current === "string") {
+      result[path] = current.toUpperCase();
+    } else {
+      result[path] = current;
+    }
+  }
+
+  helper(obj, "");
+
+  return result;
+}

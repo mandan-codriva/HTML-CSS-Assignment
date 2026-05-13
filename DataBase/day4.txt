@@ -1,0 +1,486 @@
+use assignment_day2;
+drop database assignment_day2;
+create database assignment_day2;
+
+create table users(
+user_id int primary key auto_increment,
+name varchar(30) not null ,
+email varchar(30) unique not null,
+phone varchar(15) unique not null,
+created_at timestamp default current_timestamp,
+updated_at timestamp default current_timestamp
+);
+
+create table products(
+product_id int primary key auto_increment,
+name varchar(50) not null,
+price decimal(10,2) not null check(price>0),
+stock int not null check(stock>=0),
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp
+);
+
+create table carts(
+cart_id int primary key auto_increment,
+user_id int not null unique,
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp,
+foreign key (user_id) references users(user_id) on delete cascade
+);
+
+create table cartItems(
+cartItem_id int primary key auto_increment,
+cart_id int not null,
+product_id int not null,
+quantity int not null check(quantity>0),
+price decimal(10,2) check(price>0) not null,
+foreign key (cart_id) references carts(cart_id) on delete cascade,
+foreign key (product_id) references products(product_id), 
+unique(cart_id,product_id),
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp
+);
+
+
+
+create table orders (
+  order_id int primary key auto_increment,
+  user_id int not null,
+  order_date date not null,
+  status varchar(30) not null 
+  check (status in ('PENDING', 'COMPLETED', 'CANCELLED')),
+  total_amount decimal(10,2) not null check (total_amount >= 0),
+  created_at timestamp default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  foreign key (user_id) references users(user_id)
+);
+
+create table orderItem(
+orderItem_id int primary key auto_increment,
+order_id int not null,
+product_id int not null,
+unique(order_id,product_id),
+quantity int check(quantity>0) not null,
+price decimal(10,2) check (price>0) not null,
+foreign key (order_id) references orders(order_id) on delete cascade,
+foreign key (product_id) references products(product_id),
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp
+);
+
+
+
+
+
+insert into users(name,email,phone) values
+('Amit Sharma','amit1@gmail.com','9876543210'),
+('Priya Verma','priya1@gmail.com','9876543211'),
+('Rahul Singh','rahul1@gmail.com','9876543212'),
+('Neha Gupta','neha1@gmail.com','9876543213'),
+('Arjun Mehta','arjun1@gmail.com','9876543214'),
+('Sneha Kapoor','sneha1@gmail.com','9876543215'),
+('Vikas Yadav','vikas1@gmail.com','9876543216'),
+('Pooja Sharma','pooja1@gmail.com','9876543217'),
+('Rohit Jain','rohit1@gmail.com','9876543218'),
+('Kavita Mishra','kavita1@gmail.com','9876543219'),
+('Ankit Agarwal','ankit1@gmail.com','9876543220'),
+('Simran Kaur','simran1@gmail.com','9876543221'),
+('Deepak Chauhan','deepak1@gmail.com','9876543222'),
+('Nisha Arora','nisha1@gmail.com','9876543223'),
+('Manish Pandey','manish1@gmail.com','9876543224'),
+('Ritu Saxena','ritu1@gmail.com','9876543225'),
+('Saurabh Gupta','saurabh1@gmail.com','9876543226'),
+('Meena Joshi','meena1@gmail.com','9876543227');
+
+insert into products(name,price,stock) values
+('Laptop',65000,10),
+('Smartphone',25000,25),
+('Headphones',2000,50),
+('Keyboard',1500,40),
+('Mouse',800,60),
+('Monitor',12000,20),
+('Printer',9000,15),
+('Tablet',18000,18),
+('Smartwatch',5000,30),
+('Speaker',3000,35),
+('Camera',45000,8),
+('Power Bank',1200,70);
+
+
+insert into cartItems(cart_id,product_id,quantity,price) values
+(1,2,1,25000),
+(1,5,2,800),
+(2,1,1,65000),
+(3,3,2,2000),
+(4,4,1,1500),
+(5,6,1,12000),
+(6,8,1,18000),
+(7,9,2,5000),
+(8,10,1,3000),
+(9,12,3,1200),
+(10,7,1,9000),
+(11,2,1,25000),
+(12,11,1,45000);
+
+insert into carts(user_id) values
+(1),(2),(3),(4),(5),(6),(7),(8),(9),
+(10),(11),(12),(13),(14),(15),(16),(17),(18);
+
+insert into orders(user_id,order_date,status,total_amount) values
+(1,'2026-04-01','COMPLETED',26600),
+(2,'2026-04-02','COMPLETED',65000),
+(3,'2026-04-03','PENDING',4000),
+(4,'2026-04-04','COMPLETED',1500),
+(5,'2026-04-05','CANCELLED',12000),
+(6,'2026-04-06','COMPLETED',18000),
+(7,'2026-04-07','COMPLETED',10000),
+(8,'2026-04-08','COMPLETED',3000),
+(9,'2026-04-09','PENDING',3600),
+(10,'2026-04-10','COMPLETED',9000),
+(11,'2026-04-11','COMPLETED',25000),
+(12,'2026-04-12','COMPLETED',45000),
+(13,'2026-04-13','PENDING',5200),
+(14,'2026-04-14','COMPLETED',7000),
+(15,'2026-04-15','COMPLETED',800),
+(16,'2026-04-16','COMPLETED',65000),
+(17,'2026-04-17','CANCELLED',2000),
+(18,'2026-04-18','COMPLETED',12000),
+(1,'2026-04-19','COMPLETED',3000),
+(2,'2026-04-20','PENDING',5000),
+(3,'2026-04-21','COMPLETED',9000),
+(4,'2026-04-22','COMPLETED',2000),
+(5,'2026-04-23','COMPLETED',18000),
+(6,'2026-04-24','PENDING',1200),
+(7,'2026-04-25','COMPLETED',45000);
+
+
+insert into orderItem(order_id,product_id,quantity,price) values
+(1,2,1,25000),(1,5,2,800),
+(2,1,1,65000),
+(3,3,2,2000),
+(4,4,1,1500),
+(5,6,1,12000),
+(6,8,1,18000),
+(7,9,2,5000),
+(8,10,1,3000),
+(9,12,3,1200),
+(10,7,1,9000),
+(11,2,1,25000),
+(12,11,1,45000),
+(13,5,2,800),(13,3,1,2000),
+(14,9,1,5000),(14,12,2,1200),
+(15,5,1,800),
+(16,1,1,65000),
+(17,3,1,2000),
+(18,6,1,12000),
+(19,10,1,3000),
+(20,9,1,5000),
+(21,7,1,9000),
+(22,3,1,2000),
+(23,8,1,18000),
+(24,12,1,1200),
+(25,11,1,45000),
+(21,5,2,800),
+(22,4,1,1500),
+(23,2,1,25000),
+(24,3,2,2000),
+(25,9,1,5000);
+
+
+
+
+select
+count(*)
+from users;
+
+select
+count(o.order_id)
+from orders o;
+
+select
+sum(oi.quantity *oi.price)
+from orderItem oi;
+
+-- SUB- QUERRY IMPLIMENTED --
+  
+select avg(order_sum) as avg_order_value
+from
+(select o.order_id,
+sum(oi.quantity * oi.price) as order_sum
+from orders o
+join orderItem oi on o.order_id = oi.order_id
+group by o.order_id) t;
+
+select o.user_id,
+sum(o.total_amount)
+from users u
+join orders o on o.user_id = u.user_id
+group by (o.user_id);
+
+select u.user_id,u.name,
+count(o.order_id)
+from orders o
+join users u on o.user_id = u.user_id and o.status = 'COMPLETED'
+group by u.user_id,u.name;
+
+select oi.product_id,
+sum(oi.quantity) as total_quantity_sold
+from products p
+join orderItem oi on oi.product_id = p.product_id
+group by oi.product_id;
+
+select p.product_id,p.name,
+sum(oi.quantity * oi.price) as total_revenue_per_product
+from orderItem oi
+join products p on oi.product_id = p.product_id
+group by p.product_id,p.name;
+
+select o.order_date,sum(o.order_id) as total_order_placed
+from orders o
+group by order_date;
+
+-- Deep understanding of grouping logic --
+
+-- Take a messy table and organize rows into buckets, then do calculations on each bucket. 
+-- GROUP BY transforms a set of rows into a smaller set of summarized rows by:
+-- Partitioning the data into groups based on one or more columns
+-- Performing aggregation within each group
+-- Returning one result row per group
+-- GROUP BY means “divide data into groups and calculate something for each group.
+-- Without GROUP BY → results are calculated over the entire dataset
+-- With GROUP BY → results are calculated per group
+select * from orders;
+
+select u.user_id, u.name
+from users u
+join orders o on o.user_id = u.user_id
+group by u.user_id, u.name
+having sum(o.total_amount) > 1000;
+
+select p.product_id , p.name
+from products p 
+join orderItem oi on p.product_id = oi.product_id
+group by p.product_id,p.name
+having sum(oi.quantity) > 10;
+
+select u.user_id,u.name
+from users u 
+join orders o on o.user_id = u.user_id
+group by u.user_id, u.name
+having count(o.order_id) > 3;
+
+-- Difference between WHERE vs HAVING
+
+-- WHERE Clause
+
+-- The WHERE clause is used to filter rows before grouping and aggregation take place. It operates on individual rows and determines which rows should be included in the result set prior to any grouping.
+
+-- Works on row-level data
+-- Cannot use aggregate functions (SUM, COUNT, AVG, etc.)
+-- Applied before GROUP BY
+
+--  HAVING Clause
+
+-- The HAVING clause is used to filter groups after grouping and aggregation have been performed. It operates on aggregated data and determines which groups should be included in the final result.
+
+-- Works on group-level data
+-- Can use aggregate functions
+-- Applied after GROUP BY
+
+
+select sum(o.order_id),
+sum(oi.quantity * oi.price) as total_revenue
+from orders o
+join orderItem oi on oi.order_id = o.order_id;
+
+select u.user_id,u.name,
+sum(o.total_amount) as total_spent
+from orders o 
+join users u on u.user_id = o.user_id
+group by u.user_id,u.name
+order by total_spent DESC 
+limit 5;
+
+
+select p.product_id, p.name,
+       sum(oi.quantity * oi.price) as total_revenue
+from products p
+join orderItem oi on oi.product_id = p.product_id
+group by p.product_id, p.name
+order by total_revenue desc
+limit 1;
+
+select oi.product_id,
+sum(oi.quantity) as selling_total_unit
+from products p 
+join orderItem oi on p.product_id = oi.product_id
+group by oi.product_id
+order by selling_total_unit;
+
+
+select o.order_date,
+       sum(o.total_amount) as total_revenue
+from orders o
+group by o.order_date
+order by total_revenue desc
+limit 1;
+
+select avg(o.total_amount) as avg_spending_per_user,
+u.name
+from users u 
+join orders o on u.user_id = o.user_id
+group by u.user_id,u.name
+order by avg_spending_per_user;
+
+select o.order_date,
+sum(o.total_amount) revenue_per_day
+from orders o
+group by o.order_date;
+
+select year(o.order_date) as year,
+       month(o.order_date) as month,
+       sum(o.total_amount) as monthly_revenue
+from orders o
+group by year(o.order_date), month(o.order_date)
+order by year, month;
+
+select o.order_date,
+       sum(o.total_amount) as daily_revenue,
+       sum(sum(o.total_amount)) over (order by o.order_date) as cumulative_revenue
+from orders o
+group by o.order_date
+order by o.order_date;
+
+
+-- Using Aggregate Functions Without GROUP BY
+
+-- Using aggregate functions with non-aggregated columns without GROUP BY
+-- select user_id, sum(total_amount)
+-- from orders;
+-- Why this is wrong
+-- SUM(total_amount) → gives one value
+-- user_id → has multiple values
+-- SQL gets confused:
+-- “Should I return one row or many rows?”
+
+-- 2. Wrong Grouping Column
+
+-- Wrong Grouping Column
+-- Problem
+
+-- Grouping by the wrong column changes the meaning
+-- select user_id, sum(total_amount)
+-- from orders
+-- group by order_id;
+-- Why this is wrong
+-- order_id is unique
+-- So each group = one row
+
+-- 👉 Result:
+
+-- SUM(total_amount) = same as original value
+-- No real aggregation happens 
+-- Fix
+-- group by user_id;
+
+-- Now grouping matches the requirement:
+-- “Total per user”
+
+--  3.
+
+-- All aggregation errors come from one root issue:
+-- Mixing row-level data with group-level data
+-- Row level	Individual records
+-- Group level	Aggregated summary
+-- “Group data first → then calculate → then display one result per group”
+
+-- Aggregation errors occur when SQL cannot reconcile multiple row-level values into a single group-level result due to improper grouping or misuse of aggregate functions.
+
+
+
+select p.product_id , p.name
+from products p 
+join orderItem oi on p.product_id = oi.product_id
+group by p.product_id,p.name
+having sum(oi.quantity) > 10;
+
+select u.user_id, u.name,
+       sum(oi.quantity) as total_items_ordered,
+       sum(oi.quantity * oi.price) as total_spending_money
+from users u
+join orders o on o.user_id = u.user_id
+join orderItem oi on oi.order_id = o.order_id
+group by u.user_id, u.name
+having sum(oi.quantity) > 5 
+   and sum(oi.quantity * oi.price) > 2000;
+   
+   
+-- COUNT(*) vs COUNT(column)
+-- COUNT(*)
+-- Counts all rows, including rows where columns contain NULL
+-- Does not depend on any specific column
+
+-- Definition:
+-- COUNT(*) returns the total number of rows in a dataset.
+
+-- COUNT(column)
+-- Counts only non-NULL values in that column
+-- Ignores rows where the column value is NULL
+--  Definition:
+-- COUNT(column) returns the number of rows where the specified column is not NULL.
+
+-- COUNT(*) measures dataset size, whereas COUNT(column) measures data completeness for a specific attribute.
+
+-- 2. Importance of GROUP BY
+--  Definition
+
+-- GROUP BY is used to organize data into groups based on one or more columns, allowing aggregate functions to be applied to each group.
+--  Why it is needed
+-- Without GROUP BY:
+-- Aggregate functions operate on the entire dataset
+-- With GROUP BY:
+-- Aggregation happens per group
+-- Conceptual Insight
+-- GROUP BY changes the level of analysis from row-level to group-level, enabling meaningful summaries such as totals, averages, and counts for each category.
+
+
+-- HAVING vs WHERE
+--   WHERE
+-- Filters rows before grouping
+-- Cannot use aggregate functions
+-- Definition:
+-- WHERE restricts the dataset prior to aggregation.
+-- HAVING
+-- Filters groups after aggregation
+-- Can use aggregate functions
+--  Definition:
+-- HAVING filters grouped results based on aggregate conditions.
+
+-- 4. Impact of Incorrect GROUP BY
+-- Problem
+-- Using wrong grouping columns leads to:
+-- Incorrect aggregation
+-- Misleading results
+-- Loss of analytical meaning
+-- Common mistakes
+-- 1. Over-grouping
+-- Grouping by too many columns:
+-- Breaks data into very small groups
+-- Reduces usefulness of aggregation
+-- 2. Under-grouping
+-- Grouping by too few columns:
+-- Merges unrelated data
+-- Produces incorrect summaries
+-- 3. Grouping by unique column
+-- Each group has only one row
+-- Aggregation becomes meaningless
+-- Conceptual Insight
+-- The choice of GROUP BY columns determines the granularity of analysis; incorrect grouping leads to either over-fragmented or overly generalized results.
+
+
+
+
+
+
+
+

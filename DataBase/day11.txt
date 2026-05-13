@@ -1,0 +1,856 @@
+
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> use day11
+switched to db day11
+Atlas atlas-13oy9o-shard-0 [primary] day11> show collections
+ecommerce_db
+mongo_demo
+Atlas atlas-13oy9o-shard-0 [primary] day11> db.ecommerce_db.find();
+[
+  {
+    _id: ObjectId('69f98576c9cda19392095f3d'),
+    name: 'Aman',
+    age: 25,
+    email: 'aman@gmail.com',
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f3f'),
+    name: 'Ravi',
+    age: 22,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f40'),
+    name: 'Neha',
+    age: 28,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f41'),
+    name: 'Karan',
+    age: 27,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f42'),
+    name: 'Priya',
+    age: 24,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f43'),
+    name: 'John',
+    age: 30,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f44'),
+    name: 'Simran',
+    age: 21,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f45'),
+    name: 'Amit',
+    age: 35,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f46'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f47'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f98595c9cda19392095f48'),
+    name: 'Sneha',
+    age: 23,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f986c7c9cda19392095f4a'),
+    name: 'arjun',
+    age: 32,
+    isActive: true,
+    address: { city: 'delhi', pincode: 117008 },
+    skills: [ 'node,mongo' ]
+  },
+  {
+    _id: ObjectId('69f986c7c9cda19392095f4b'),
+    name: 'Meera',
+    age: 24,
+    isActive: false,
+    address: { city: 'Mumbai', pincode: 400001 },
+    skills: [ 'Python', 'Django' ]
+  },
+  {
+    _id: ObjectId('69f986c7c9cda19392095f4c'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] day11> 
+(To exit, press Ctrl+C again or Ctrl+D or type .exit)
+Atlas atlas-13oy9o-shard-0 [primary] day11> use day11
+already on db day11
+Atlas atlas-13oy9o-shard-0 [primary] day11> db.ecommerce_db.drop()
+true
+Atlas atlas-13oy9o-shard-0 [primary] day11> use ecommerce_db
+switched to db ecommerce_db
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.createCollection("users")
+{ ok: 1 }
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> show collections
+users
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.insertOne({
+|   name: "Aman",
+|   age: 25,
+|   email: "aman@gmail.com",
+|   isActive: true
+| })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69f999cc03ac1f2fbf9df8a3')
+}
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.insertMany([
+|   { name: "Ravi", age: 22, isActive: true },
+|   { name: "Neha", age: 28, isActive: false },
+|   { name: "Karan", age: 27, isActive: true },
+|   { name: "Priya", age: 24, isActive: true },
+|   { name: "John", age: 30, isActive: false },
+|   { name: "Simran", age: 21, isActive: true },
+|   { name: "Amit", age: 35, isActive: false },
+|   { name: "Pooja", age: 29, isActive: true },
+|   { name: "Rahul", age: 26, isActive: true },
+|   { name: "Sneha", age: 23, isActive: false }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('69f999dc03ac1f2fbf9df8a4'),
+    '1': ObjectId('69f999dc03ac1f2fbf9df8a5'),
+    '2': ObjectId('69f999dc03ac1f2fbf9df8a6'),
+    '3': ObjectId('69f999dc03ac1f2fbf9df8a7'),
+    '4': ObjectId('69f999dc03ac1f2fbf9df8a8'),
+    '5': ObjectId('69f999dc03ac1f2fbf9df8a9'),
+    '6': ObjectId('69f999dc03ac1f2fbf9df8aa'),
+    '7': ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    '8': ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    '9': ObjectId('69f999dc03ac1f2fbf9df8ad')
+  }
+}
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.insertMany([
+|   {
+|     name: "Arjun",
+|     age: 28,
+|     isActive: true,
+|     address: { city: "Delhi", pincode: 110001 },
+|     skills: ["MongoDB", "Node.js"]
+|   },
+|   {
+|     name: "Meera",
+|     age: 24,
+|     isActive: false,
+|     address: { city: "Mumbai", pincode: 400001 },
+|     skills: ["Python", "Django"]
+|   },
+|   {
+|     name: "Kabir",
+|     age: 31,
+|     isActive: true,
+|     address: { city: "Delhi", pincode: 110002 },
+|     skills: ["MongoDB", "Express"]
+|   }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    '1': ObjectId('69f999ee03ac1f2fbf9df8af'),
+    '2': ObjectId('69f999ee03ac1f2fbf9df8b0')
+  }
+}
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find()
+[
+  {
+    _id: ObjectId('69f999cc03ac1f2fbf9df8a3'),
+    name: 'Aman',
+    age: 25,
+    email: 'aman@gmail.com',
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a4'),
+    name: 'Ravi',
+    age: 22,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a5'),
+    name: 'Neha',
+    age: 28,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a6'),
+    name: 'Karan',
+    age: 27,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a7'),
+    name: 'Priya',
+    age: 24,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a8'),
+    name: 'John',
+    age: 30,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a9'),
+    name: 'Simran',
+    age: 21,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8aa'),
+    name: 'Amit',
+    age: 35,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ad'),
+    name: 'Sneha',
+    age: 23,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8af'),
+    name: 'Meera',
+    age: 24,
+    isActive: false,
+    address: { city: 'Mumbai', pincode: 400001 },
+    skills: [ 'Python', 'Django' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ age: { $gt: 25 } })
+[
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a5'),
+    name: 'Neha',
+    age: 28,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a6'),
+    name: 'Karan',
+    age: 27,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a8'),
+    name: 'John',
+    age: 30,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8aa'),
+    name: 'Amit',
+    age: 35,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ "address.city": "Delhi" })
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ skills: "MongoDB" })
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ isActive: true })
+[
+  {
+    _id: ObjectId('69f999cc03ac1f2fbf9df8a3'),
+    name: 'Aman',
+    age: 25,
+    email: 'aman@gmail.com',
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a4'),
+    name: 'Ravi',
+    age: 22,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a6'),
+    name: 'Karan',
+    age: 27,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a7'),
+    name: 'Priya',
+    age: 24,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a9'),
+    name: 'Simran',
+    age: 21,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ age: { $gte: 20, $lte: 30 } })
+[
+  {
+    _id: ObjectId('69f999cc03ac1f2fbf9df8a3'),
+    name: 'Aman',
+    age: 25,
+    email: 'aman@gmail.com',
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a4'),
+    name: 'Ravi',
+    age: 22,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a5'),
+    name: 'Neha',
+    age: 28,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a6'),
+    name: 'Karan',
+    age: 27,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a7'),
+    name: 'Priya',
+    age: 24,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a8'),
+    name: 'John',
+    age: 30,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a9'),
+    name: 'Simran',
+    age: 21,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ad'),
+    name: 'Sneha',
+    age: 23,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8af'),
+    name: 'Meera',
+    age: 24,
+    isActive: false,
+    address: { city: 'Mumbai', pincode: 400001 },
+    skills: [ 'Python', 'Django' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({}, { name: 1, email: 1, _id: 0 })
+[
+  { name: 'Aman', email: 'aman@gmail.com' },
+  { name: 'Ravi' },
+  { name: 'Neha' },
+  { name: 'Karan' },
+  { name: 'Priya' },
+  { name: 'John' },
+  { name: 'Simran' },
+  { name: 'Amit' },
+  { name: 'Pooja' },
+  { name: 'Rahul' },
+  { name: 'Sneha' },
+  { name: 'Arjun' },
+  { name: 'Meera' },
+  { name: 'Kabir' }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find().sort({"age":-1"})
+Uncaught:
+SyntaxError: Unterminated string constant. (1:30)
+
+> 1 | db.users.find().sort({"age":-1"})
+    |                               ^
+  2 |
+
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find().sort({age:-1"})
+Uncaught:
+SyntaxError: Unterminated string constant. (1:28)
+
+> 1 | db.users.find().sort({age:-1"})
+    |                             ^
+  2 |
+
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find().sort({age:-1});
+[
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8aa'),
+    name: 'Amit',
+    age: 35,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a8'),
+    name: 'John',
+    age: 30,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a5'),
+    name: 'Neha',
+    age: 28,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a6'),
+    name: 'Karan',
+    age: 27,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999cc03ac1f2fbf9df8a3'),
+    name: 'Aman',
+    age: 25,
+    email: 'aman@gmail.com',
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a7'),
+    name: 'Priya',
+    age: 24,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8af'),
+    name: 'Meera',
+    age: 24,
+    isActive: false,
+    address: { city: 'Mumbai', pincode: 400001 },
+    skills: [ 'Python', 'Django' ]
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ad'),
+    name: 'Sneha',
+    age: 23,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a4'),
+    name: 'Ravi',
+    age: 22,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a9'),
+    name: 'Simran',
+    age: 21,
+    isActive: true
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find().skip(5).limit(5);
+[
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a8'),
+    name: 'John',
+    age: 30,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8a9'),
+    name: 'Simran',
+    age: 21,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8aa'),
+    name: 'Amit',
+    age: 35,
+    isActive: false
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ab'),
+    name: 'Pooja',
+    age: 29,
+    isActive: true
+  },
+  {
+    _id: ObjectId('69f999dc03ac1f2fbf9df8ac'),
+    name: 'Rahul',
+    age: 26,
+    isActive: true
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({name:"arjun"})
+
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({name:"pooja"})
+
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ name: "Arjun" })
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({address:{"$exists:true}})
+Uncaught:
+SyntaxError: Unterminated string constant. (1:24)
+
+> 1 | db.users.find({address:{"$exists:true}})
+    |                         ^
+  2 |
+
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({address:{$exists:true}});
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8af'),
+    name: 'Meera',
+    age: 24,
+    isActive: false,
+    address: { city: 'Mumbai', pincode: 400001 },
+    skills: [ 'Python', 'Django' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({ skills: { $in: ["MongoDB"] } })
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({
+|   isActive: true,
+|   "address.city": "Delhi"
+| })
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find({
+|   isActive: true,
+|   skills: "MongoDB"
+| })
+[
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8ae'),
+    name: 'Arjun',
+    age: 28,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110001 },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    _id: ObjectId('69f999ee03ac1f2fbf9df8b0'),
+    name: 'Kabir',
+    age: 31,
+    isActive: true,
+    address: { city: 'Delhi', pincode: 110002 },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.createCollection("orders")
+{ ok: 1 }
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.orders.insertMany([
+|   {
+|     user: "Arjun",
+|     products: [
+|       { name: "Laptop", price: 80000 },
+|       { name: "Mouse", price: 1000 }
+|     ],
+|     total_amount: 81000
+|   },
+|   {
+|     user: "Meera",
+|     products: [
+|       { name: "Phone", price: 20000 }
+|     ],
+|     total_amount: 20000
+|   }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('69f9b96e03ac1f2fbf9df8b1'),
+    '1': ObjectId('69f9b96e03ac1f2fbf9df8b2')
+  }
+}
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.orders.find({ total_amount: { $gt: 10000 } })
+[
+  {
+    _id: ObjectId('69f9b96e03ac1f2fbf9df8b1'),
+    user: 'Arjun',
+    products: [ { name: 'Laptop', price: 80000 }, { name: 'Mouse', price: 1000 } ],
+    total_amount: 81000
+  },
+  {
+    _id: ObjectId('69f9b96e03ac1f2fbf9df8b2'),
+    user: 'Meera',
+    products: [ { name: 'Phone', price: 20000 } ],
+    total_amount: 20000
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> db.users.find(
+|   {
+|     age: { $gt: 25 },
+|     skills: "MongoDB"
+|   },
+|   {
+|     name: 1,
+|     "address.city": 1,
+|     skills: 1,
+|     _id: 0
+|   }
+| )
+[
+  {
+    name: 'Arjun',
+    address: { city: 'Delhi' },
+    skills: [ 'MongoDB', 'Node.js' ]
+  },
+  {
+    name: 'Kabir',
+    address: { city: 'Delhi' },
+    skills: [ 'MongoDB', 'Express' ]
+  }
+]
+Atlas atlas-13oy9o-shard-0 [primary] ecommerce_db> 
+
+
+
+
+
+
+
+

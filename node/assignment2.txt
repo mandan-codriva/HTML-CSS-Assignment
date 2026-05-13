@@ -1,0 +1,225 @@
+                                                          Node.js Core Modules and Basic Concepts – Assignment Solutions
+
+Name: Mandan Kumar Jha
+Topic: Node.js Core Modules and Basic Concepts
+Technology Used: Node.js
+
+
+1. Log the Global Object
+Code
+console.log(global);
+
+
+2. Print __dirname and __filename
+Code
+console.log("Directory Name:", __dirname);
+console.log("File Name:", __filename);
+
+3. Create a Timer using setTimeout
+Code
+setTimeout(() => {
+    console.log("it will exicute after 2 minute");
+}, 2000);
+
+
+4. Create an Interval using setInterval
+Code
+setInterval(() => {
+    console.log("it will exicute after 3 minute");
+}, 3000);
+
+
+5. Print an Error Message using console.error
+Code
+console.error("error message");
+
+
+6. Use the path Module to Print Directory Name
+Code
+const path = require('path');
+
+const filePath = "/users/documents/index.js";
+
+console.log(path.dirname(filePath));
+
+
+7. Create and Import a Custom Module
+greetings.js
+function greetings(name) {
+    return `Hello ${name}, welcome to the Node.js world!`;
+}
+
+module.exports = greetings;
+index.js
+const greetings = require('./greetings');
+
+const ans = greetings('jha');
+
+console.log(ans);
+
+8. Generate Random Bytes using crypto Module
+Code
+const crypto = require('crypto');
+
+const randomText = crypto.randomBytes(16).toString('hex');
+
+console.log(randomText);
+
+
+9. Create a Simple Event Emitter
+Code
+const EventEmitter = require('events');
+
+const myEmitter = new EventEmitter();
+
+myEmitter.on('greet', (name) => {
+    console.log(`Hello, ${name}! Welcome to the Node.js world!`);
+});
+
+myEmitter.emit('greet', 'mandan');
+
+10. Listen to a Custom Event "greet"
+Code
+const EventEmitter = require('events');
+
+const myEmitter = new EventEmitter();
+
+myEmitter.on('greet', (name) => {
+    console.log(`Hello, ${name}! Welcome to the Node.js world!`);
+});
+
+myEmitter.emit('greet', 'mandan jha');
+
+
+11. Read a File using fs.readFile
+Code
+const fs = require('fs');
+
+fs.readFile(
+    '/home/mandan/Downloads/07_04_2026_htmls_assignment.html',
+    'utf8',
+    (error, data) => {
+
+        if (error) {
+            console.error("Error reading file:", error);
+            return;
+        }
+
+        console.log("File content:", data);
+    }
+);
+
+
+12. Join Paths Dynamically using path.join
+Code
+const path = require("path");
+
+const fullPath = path.join('notes', 'note1.txt');
+
+console.log(fullPath);
+
+
+13. Print Total and Free System Memory using os
+Code
+const os = require("os");
+
+const totalMemory = os.totalmem();
+const freeMemory = os.freemem();
+
+console.log("Total Memory:", totalMemory);
+console.log("Free Memory:", freeMemory);
+
+14. Create a Simple HTTP Server
+Code
+const http = require("http");
+
+const server = http.createServer((request, response) => {
+
+    response.writeHead(200, {
+        "Content-Type": "text/plain"
+    });
+
+    response.end("Hello Node.js Core");
+});
+
+server.listen(3000, () => {
+    console.log("Server is running on port 3000");
+});
+
+
+15. Install and Use moment Package
+Installation Command
+npm install moment
+Code
+const moment = require("moment");
+
+const currentDate = moment();
+
+console.log(currentDate.format("DD-MM-YYYY"));
+console.log(currentDate.format("hh:mm:ss"));
+
+
+16. Print Current File and Directory Name Dynamically
+Code
+const path = require('path');
+
+const fileName = path.basename(__filename);
+
+const directoryName = path.basename(__dirname);
+
+console.log("Current File Name:", fileName);
+console.log("Current Directory Name:", directoryName);
+
+17. Create a String Uppercase Converter Module
+uppercase.js
+function convertToUpperCase(str) {
+    return str.toUpperCase();
+}
+
+module.exports = convertToUpperCase;
+index.js
+const uppercase = require('./uppercase');
+
+const result = uppercase("mandan KUmar jha");
+
+console.log(result);
+
+
+18. Build an Event Emitter for "join" Event
+Code
+const EventEmitter = require('events');
+
+const myEmitter = new EventEmitter();
+
+myEmitter.on('join', () => {
+    console.log("User joined");
+});
+
+myEmitter.emit('join');
+
+
+19. Export Multiple Functions using Destructuring
+multipleExports.js
+function add(a = 0, b = 0) {
+    return a + b;
+}
+
+function multiply(a = 0, b = 0) {
+    return a * b;
+}
+
+function divide(a = 0, b = 1) {
+    return a / b;
+}
+
+module.exports = {
+    add,
+    multiply,
+    divide
+};
+index.js
+const { add, multiply, divide } = require('./multipleExports');
+
+console.log("Addition:", add(5, 3));
+console.log("Multiplication:", multiply(5, 3));
+console.log("Division:", divide(10, 2));

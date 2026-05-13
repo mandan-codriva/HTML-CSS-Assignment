@@ -1,0 +1,380 @@
+create database assignment_day2;
+use assignment_day2; 
+
+create table users(
+user_id int primary key auto_increment,
+name varchar(30) not null ,
+email varchar(30) unique not null,
+phone varchar(15) unique not null,
+created_at timestamp default current_timestamp,
+updated_at timestamp default current_timestamp
+);
+
+create table products(
+product_id int primary key auto_increment,
+name varchar(50) not null,
+price decimal(10,2) not null check(price>0),
+stock int not null check(stock>=0),
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp
+);
+
+create table carts(
+cart_id int primary key auto_increment,
+user_id int not null unique,
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp,
+foreign key (user_id) references users(user_id) on delete cascade
+);
+
+create table cartItems(
+cartItem_id int primary key auto_increment,
+cart_id int not null,
+product_id int not null,
+quantity int not null check(quantity>0),
+price decimal(10,2) check(price>0) not null,
+foreign key (cart_id) references carts(cart_id) on delete cascade,
+foreign key (product_id) references products(product_id), 
+unique(cart_id,product_id),
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp
+);
+
+
+
+create table orders (
+  order_id int primary key auto_increment,
+  user_id int not null,
+  order_date date not null,
+  status varchar(30) not null 
+  check (status in ('PENDING', 'COMPLETED', 'CANCELLED')),
+  total_amount decimal(10,2) not null check (total_amount >= 0),
+  created_at timestamp default current_timestamp,
+  updated_at timestamp default current_timestamp on update current_timestamp,
+  foreign key (user_id) references users(user_id)
+);
+
+create table orderItem(
+orderItem_id int primary key auto_increment,
+order_id int not null,
+product_id int not null,
+unique(order_id,product_id),
+quantity int check(quantity>0) not null,
+price decimal(10,2) check (price>0) not null,
+foreign key (order_id) references orders(order_id) on delete cascade,
+foreign key (product_id) references products(product_id),
+created_at timestamp default current_timestamp,
+updated_at  timestamp default current_timestamp on update current_timestamp
+);
+drop table users;
+drop database assignment_day2;
+SHOW DATABASES;
+
+INSERT INTO users (name, email, phone) VALUES
+('Alice', 'alice1@gmail.com', '+911111111111'),
+('Bob', 'bob1@gmail.com', '+911111111112'),
+('Charlie', 'charlie1@gmail.com', '+911111111113'),
+('David', 'david1@gmail.com', '+911111111114'),
+('Eve', 'eve1@gmail.com', '+911111111115'),
+('Frank', 'frank1@gmail.com', '+911111111116'),
+('Grace', 'grace1@gmail.com', '+911111111117'),
+('Hank', 'hank1@gmail.com', '+911111111118');
+
+INSERT INTO products (name, price, stock) VALUES
+('iPhone 13', 70000, 10),
+('Samsung S22', 60000, 15),
+('Laptop Dell', 80000, 5),
+('Headphones', 2000, 50),
+('Keyboard', 1500, 40),
+('Mouse', 800, 60),
+('Monitor', 12000, 20),
+('Tablet', 30000, 12),
+('Smartwatch', 10000, 25),
+('Charger', 500, 100);
+
+INSERT INTO carts (user_id) VALUES
+(1), (2), (3), (4), (5);
+
+INSERT INTO cartItems (cart_id, product_id, quantity, price) VALUES
+(1, 1, 1, 70000),
+(1, 4, 2, 2000),
+(2, 2, 1, 60000),
+(3, 5, 3, 1500),
+(4, 6, 2, 800);
+
+
+INSERT INTO orders (user_id, order_date, status, total_amount) VALUES
+(1, '2026-01-01', 'COMPLETED', 74000),
+(2, '2026-01-02', 'PENDING', 60000),
+(3, '2026-01-03', 'COMPLETED', 4500),
+(4, '2026-01-04', 'CANCELLED', 800),
+(5, '2026-01-05', 'COMPLETED', 12000),
+(1, '2026-01-06', 'COMPLETED', 2000),
+(2, '2026-01-07', 'PENDING', 30000),
+(3, '2026-01-08', 'COMPLETED', 10000),
+(4, '2026-01-09', 'COMPLETED', 500),
+(5, '2026-01-10', 'PENDING', 1500);
+
+INSERT INTO orderItem (order_id, product_id, quantity, price) VALUES
+(1,1,1,70000),
+(1,4,2,2000),
+
+(2,2,1,60000),
+
+(3,5,3,1500),
+
+(4,6,1,800),
+
+(5,7,1,12000),
+
+(6,4,1,2000),
+
+(7,8,1,30000),
+
+(8,9,1,10000),
+
+(9,10,1,500),
+
+(10,5,1,1500),
+
+(2,4,1,2000),
+(3,6,2,800),
+(5,1,1,70000),
+(6,2,1,60000),
+(7,3,1,80000),
+(8,4,2,2000),
+(9,5,1,1500),
+(10,6,2,800);
+
+SELECT cart_id, SUM(quantity * price) FROM cartItems GROUP BY cart_id;
+
+SELECT order_id, SUM(quantity * price) FROM orderItem GROUP BY order_id;
+
+SELECT order_id
+FROM orderItem
+GROUP BY order_id
+HAVING COUNT(product_id) > 1;
+
+
+INSERT INTO orders (user_id, order_date, status, total_amount) VALUES
+(1, '2026-01-01', 'pending', 74000);
+
+
+INSERT INTO users (name, email, phone) VALUES
+(null, 'alice1@gmail.com', '+911111111111') ;
+
+-- coloumn name cannot be null 
+INSERT INTO users (name, email, phone) VALUES
+('Alice', 'alice1@gmail.com', '+911111111111') ;
+-- duplicate entry for 'alice1@gmail.com'
+
+INSERT INTO orders (user_id, order_date, status, total_amount) VALUES
+(11, '2026-01-01', 'COMPLETED', null);
+
+SELECT o.order_id
+FROM orders o
+LEFT JOIN orderItem oi ON o.order_id = oi.order_id
+WHERE oi.order_id IS NULL;
+
+
+INSERT INTO products (name, price, stock) VALUES
+('iPhone 13', 70000, -10);
+
+-- check constrain voileted
+
+INSERT INTO orders (user_id, order_date, status, total_amount) VALUES
+(11, '2026-01-01', 'partial-success', 1800);
+
+INSERT INTO orders (user_id, order_date, status, total_amount) VALUES
+(15, '2026-01-01', 'pending', 74000);
+
+-- cannot add or update child table...
+
+INSERT INTO cartItems (cart_id, product_id, quantity, price) VALUES
+(1, 1, 0, 70000);
+
+select user_id
+from users
+group by email
+having count(email)>1;
+
+select u.user_id, name
+from users u left join orders o
+on u.user_id = o.user_id
+where o.user_id is null;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER orderDate_Checking
+BEFORE INSERT ON orders
+FOR EACH ROW
+BEGIN
+  IF NEW.order_date > CURRENT_DATE THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'order_date cannot be in future';
+  END IF;
+END$$
+
+DELIMITER ;
+
+ALTER TABLE orders
+MODIFY status VARCHAR(30) NOT NULL DEFAULT 'PENDING';   
+
+
+-- day2--
+
+create database Assignment_day2_products; 
+use Assignment_day2;
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock_quantity INT NOT NULL,
+    brand VARCHAR(100),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO products (name, category, price, stock_quantity, brand)
+VALUES ('iPhone 15 Pro', 'Electronics', 120000, 10, 'Apple');
+
+INSERT INTO products (name, category, price, stock_quantity, brand) VALUES
+('iPhone 14', 'Electronics', 80000, 5, 'Apple'),
+('Samsung S23', 'Electronics', 70000, 0, 'Samsung'),
+('Dell XPS 13', 'Electronics', 110000, 3, 'Dell'),
+('HP Pavilion', 'Electronics', 55000, 0, 'HP'),
+('Nike Air Max', 'Fashion', 12000, 15, 'Nike'),
+('Adidas Ultraboost', 'Fashion', 15000, 0, 'Adidas'),
+('Levi Jeans', 'Fashion', 2500, 20, 'Levi'),
+('Wooden Table', 'Home', 5000, 7, 'Ikea'),
+('Sofa Set', 'Home', 35000, 2, 'Urban Ladder'),
+('Chair', 'Home', 1500, 0, 'LocalBrand'),
+('Microwave Oven', 'Appliances', 9000, 6, 'LG'),
+('Washing Machine', 'Appliances', 30000, 4, 'Samsung'),
+('Refrigerator', 'Appliances', 45000, 1, 'Whirlpool'),
+('Bluetooth Speaker', 'Electronics', 3000, 25, 'JBL'),
+('Gaming Mouse', 'Electronics', 2000, 0, 'Logitech'),
+('Office Desk', 'Home', 7000, 5, 'Ikea'),
+('Smart Watch', 'Electronics', 20000, 8, 'Apple'),
+('T-shirt', 'Fashion', 800, 50, 'H&M'),
+('Shoes', 'Fashion', 4000, 0, 'Puma'),
+('Air Conditioner', 'Appliances', 50000, 3, 'Daikin');
+
+
+SELECT * FROM products;
+
+SELECT * FROM products
+WHERE price > 1000;
+
+select id,name
+from products
+where category='Electronics';
+
+select * 
+from products 
+where name  LIKE '%Pro%';
+
+select *
+from products
+order By price DESC;
+
+select *
+from products
+order By price DESC
+limit 5;
+
+SELECT * FROM products
+LIMIT 5 OFFSET 5;
+
+SELECT * FROM products
+WHERE is_active = TRUE;
+
+SELECT * FROM products
+WHERE stock_quantity < 5;
+
+select * from products
+where price between 500 AND 2000;
+
+update products 
+set price= price*1.10
+where category= 'Electronics';
+
+update products
+set is_active = false
+where stock_quantity=0;
+
+update products
+set brand = 'PremiumBrand'
+where category = 'fashion';
+
+UPDATE products
+SET price = price * 0.80
+WHERE price > 10000;
+
+
+DELETE FROM products
+WHERE stock_quantity = 0;
+
+
+DELETE FROM products
+WHERE category = 'Home';
+
+DELETE FROM products
+WHERE price < 100;
+
+UPDATE products
+SET is_active = FALSE
+WHERE id = 1;
+
+SELECT * FROM products
+WHERE price = 0;
+
+UPDATE products
+SET price = 1000
+WHERE price = 0;
+
+ALTER TABLE products
+ADD discount DECIMAL(5,2) DEFAULT 0;
+
+update products
+set discount = price*0.10
+where price>5000;
+
+
+SELECT 
+    id,
+    name,
+    price,
+    discount,
+    price - (price * discount / 100) AS final_price
+FROM products;
+
+
+-- Trigger Uses For Practice -- 
+
+DELIMITER &&
+
+CREATE TRIGGER set_isActive_False
+BEFORE INSERT ON products
+FOR EACH ROW
+BEGIN
+    IF NEW.stock_quantity = 0 THEN
+        SET NEW.is_active = FALSE;
+    END IF;
+END &&
+
+DELIMITER ;
+
+
+INSERT INTO products (name, category, price, stock_quantity, brand) VALUES
+('iPhone 14', 'Electronics', 80000, 0, 'Apple');
+select * from products;
+
+ 
+ 
+
+ 

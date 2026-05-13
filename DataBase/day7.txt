@@ -1,0 +1,207 @@
+create database demo;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+create table users_uuid(
+   id uuid primary key default uuid_generate_v4(),
+   name varchar(100) not null,
+   email varchar(50) unique not null,
+   created_at timestamp default current_timestamp
+);
+
+INSERT INTO users_uuid (name, email) VALUES
+('Amit Sharma', 'amit@example.com'),
+('Priya Verma', 'priya@example.com'),
+('Rahul Singh', 'rahul@example.com'),
+('Sneha Kapoor', 'sneha@example.com'),
+('Vikram Joshi', 'vikram@example.com'),
+('Neha Gupta', 'neha@example.com'),
+('Arjun Mehta', 'arjun@example.com'),
+('Kavya Nair', 'kavya@example.com'),
+('Rohit Jain', 'rohit@example.com'),
+('Ananya Rao', 'ananya@example.com');
+
+--Observe UUID Structure
+-- UUID Example: 550e8400-e29b-41d4-a716-446655440000
+
+--Structure:
+--128-bit unique identifier
+--Globally unique
+--Hard to predict
+
+--UUID vs SERIAL
+
+--Feature	        UUID	              SERIAL
+--Type	        128-bit string	           Integer
+--Predictability	Random	                Sequential
+--Security	    Better	                    Weak
+--Scalability	    Excellent               Limited
+--Storage	        Larger	                 Smaller
+--Performance	    Slightly slower	          Faster
+
+
+--When to Use UUID:
+--Distributed systems
+--Public APIs
+--Security-sensitive apps
+--Multi-region systems
+
+--When NOT to Use UUID:
+--Small apps
+--High write performance systems
+--Storage-sensitive databases
+
+create table user_profiles(
+   id uuid primary key default uuid_generate_v4(),
+   user_id uuid references users_uuid(id) on delete cascade,
+   preferences jsonb
+);
+
+
+INSERT INTO user_profiles (user_id, preferences)
+SELECT id,
+CASE name
+    WHEN 'Amit Sharma' THEN
+        '{"theme":"dark","notifications":true,"languages":["en","hi"],"address":{"city":"Delhi","pincode":"110001"}}'::jsonb
+    WHEN 'Priya Verma' THEN
+        '{"theme":"light","notifications":false,"languages":["en"],"address":{"city":"Mumbai","pincode":"400001"}}'::jsonb
+    WHEN 'Rahul Singh' THEN
+        '{"theme":"dark","notifications":true,"languages":["hi"],"address":{"city":"Delhi","pincode":"110045"}}'::jsonb
+    WHEN 'Sneha Kapoor' THEN
+        '{"theme":"blue","notifications":true,"languages":["en","fr"],"address":{"city":"Bangalore","pincode":"560001"}}'::jsonb
+    WHEN 'Vikram Joshi' THEN
+        '{"theme":"light","notifications":true,"languages":["en","mr"],"address":{"city":"Pune","pincode":"411001"}}'::jsonb
+    WHEN 'Neha Gupta' THEN
+        '{"theme":"dark","notifications":false,"languages":["en","hi","de"],"address":{"city":"Delhi","pincode":"110092"}}'::jsonb
+    WHEN 'Arjun Mehta' THEN
+        '{"theme":"light","notifications":true,"languages":["gu","en"],"address":{"city":"Ahmedabad","pincode":"380001"}}'::jsonb
+    WHEN 'Kavya Nair' THEN
+        '{"theme":"dark","notifications":true,"languages":["ml","en"],"address":{"city":"Kochi","pincode":"682001"}}'::jsonb
+    WHEN 'Rohit Jain' THEN
+        '{"theme":"light","notifications":false,"languages":["en","hi"],"address":{"city":"Jaipur","pincode":"302001"}}'::jsonb
+    WHEN 'Ananya Rao' THEN
+        '{"theme":"dark","notifications":true,"languages":["te","en"],"address":{"city":"Hyderabad","pincode":"500001"}}'::jsonb
+END
+FROM users_uuid;
+
+select * from user_profiles;
+
+select u.name,u.email,up.preferences
+from users_uuid u
+join user_profiles up 
+on u.id = up.user_id;
+
+-- returns Text
+select preferences->> 'theme' from user_profiles;  
+
+--return object(text with quotes)
+
+select preferences->'theme' from user_profiles; 
+
+
+select preferences->'address'->>'city' from user_profiles;
+
+select u.name
+from users_uuid u
+join user_profiles up on up.user_id = u.id 
+where up.preferences->>'theme' = 'dark';
+
+
+select user_id
+from user_profiles
+where user_profiles.preferences->>'notifications' = 'true';
+
+select user_id
+from user_profiles up 
+where up.preferences->'languages' ? 'en';
+
+select 
+u.name
+from users_uuid u
+join user_profiles up on u.id = up.user_id
+where up.preferences-> 'address'->>'city' = 'Delhi';
+
+select u.name,
+up.preferences ->'address'->'pincode'
+from users_uuid u
+join user_profiles up on u.id = up.user_id 
+where up.preferences->'address'->>'pincode' like '11%';
+
+select up.preferences->>'theme',
+count(up.preferences->>'theme')
+from users_uuid u
+join user_profiles up on u.id = up.user_id 
+group by up.preferences->>'theme';
+
+update user_profiles up 
+set preferences = jsonb_set(up.preferences ,'{theme}','"light"')
+where preferences  ->>'theme' ='dark' ;
+
+update user_profiles
+set preferences = preferences || '{"is_premium" : "true"}'::jsonb;
+
+
+update user_profiles 
+set preferences  = jsonb_set(preferences , '{address,city}','"Bangalore"')
+where preferences->'address'->>'city' ='Hyderabad'; 
+
+UPDATE user_profiles
+SET preferences = preferences - 'is_premium';
+
+
+select user_id,
+coalesce (preferences ->>'beta-user','false') as beta_user
+from user_profiles;
+
+update user_profiles 
+set preferences = preferences || '{"beta_user":false}'::jsonb
+
+SELECT preferences->>'theme' AS theme, COUNT(*)
+FROM user_profiles
+GROUP BY theme
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+
+
+SELECT preferences->'address'->>'city' AS city, COUNT(*)
+FROM user_profiles
+GROUP BY city;
+
+
+--When to Use JSONB:
+
+--Flexible schema
+--User settings
+--Product metadata
+--Dynamic forms
+--Analytics payloads
+--When to Use Columns:
+--Frequently filtered fields
+--Strong schema consistency
+--High-performance transactional systems
+
+
+--Trade-offs
+
+--Pros:
+
+--Flexible
+--Schema-less
+--Fast iteration
+--Nested structures
+
+--Cons:
+
+--Complex queries
+--More storage
+--Harder validation
+--Potential performance overhead
+
+CREATE INDEX idx_theme
+ON user_profiles ((preferences->>'theme'));
+
+
+
+EXPLAIN ANALYZE
+SELECT *
+FROM user_profiles
+WHERE preferences->>'theme' = 'dark';

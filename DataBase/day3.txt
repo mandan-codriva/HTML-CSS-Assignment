@@ -1,0 +1,269 @@
+use assignment_day2;
+show tables;
+select * from orders;
+
+
+select *
+from orders O
+join users U ON  O.user_id = U.user_id;
+
+select OI.order_id,
+    OI.product_id,
+    OI.quantity, 
+    p.name , 
+    p.price
+from orderItem OI
+join products p 
+ON OI.product_id = p.product_id;
+
+select o.order_id,
+    p.product_id,
+    p.name,
+    p.price,
+    oi.quantity
+    from orders o 
+    join orderItem oi ON o.order_id = oi.order_id
+    join products p ON oi.product_id = p.product_id;
+    
+    
+    select 
+    u.name,
+    o.order_id,
+    o.order_date
+    from orders o join users u on u.user_id = o.user_id;
+    
+    select *
+    from users u left join orders o
+    On u.user_id = o.user_id;
+    
+    select *
+    from users u  left join orders o
+    on u.user_id = o.user_id
+    where o.order_id is null;
+    
+    
+   select p.product_id,p.name,
+   count(oi.product_id)
+   from products p left join orderItem oi 
+   on p.product_id  = oi.product_id
+   group by p.product_id,p.name;
+
+
+select u.name as user_name,
+p.name as product_name,oi.quantity,
+oi.quantity * oi.price as total_price 
+from users u
+join orders o on o.user_id = u.user_id
+join orderItem oi on oi.order_id = o.order_id
+join products p on p.product_id = oi.product_id;
+
+  
+
+
+select 
+o.order_id,
+u.name as userName,
+sum(oi.quantity * oi.price) as totalPrice
+from orders o
+join users u on o.user_id = u.user_id
+join orderItem oi on oi.order_id = o.order_id
+group by o.order_id, u.name;
+
+
+select  
+    p.product_id,
+    p.name,
+    SUM(oi.quantity) AS total_orders
+from products p 
+join orderItem oi on oi.product_id = p.product_id
+group by p.product_id,p.name
+order by total_orders DESC
+limit 5;
+
+select 
+  u.name,
+  count(o.order_id) as totalOrder
+  from users u
+  join orders o on o.user_id = u.user_id
+  group by u.name ;  
+  
+  
+  select
+  distinct count(o.order_id) as total_order,
+  sum(oi.quantity * oi.price) as Revenue,
+  sum(distinct o.user_id) as total_User,
+  sum(oi.order_id) as total_product_sold
+  from orders o 
+  join orderItem oi on o.order_id = oi.order_id ;
+  
+SELECT 
+  u.user_id,
+  u.name,
+  COUNT(o.order_id) AS totalOrder
+FROM users u 
+JOIN orders o 
+  ON u.user_id = o.user_id
+GROUP BY u.user_id, u.name
+HAVING COUNT(o.order_id) > 3;
+
+select 
+p.product_id,p.name
+from products p
+left join orderItem oi
+on oi.product_id = p.product_id
+where oi.product_id is null;
+
+
+select * from orders where total_amount >10000;
+
+
+SELECT user_id, name, order_id, created_at
+FROM (
+    SELECT 
+        u.user_id,
+        u.name,
+        o.order_id,
+        o.created_at,
+        ROW_NUMBER() OVER (
+            PARTITION BY u.user_id 
+            ORDER BY o.created_at DESC
+        ) AS rn
+    FROM users u
+    JOIN orders o 
+        ON u.user_id = o.user_id
+) t
+WHERE rn = 1;
+
+
+select o.order_id,o.total_amount
+from orders o
+order by o.total_amount DESC
+limit 1;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE insert_orders()
+BEGIN
+  DECLARE i INT DEFAULT 1;
+
+  WHILE i <= 2000000 DO
+    INSERT INTO orders (user_id, created_at)
+    VALUES (
+      FLOOR(1 + RAND() * 10000),  -- 10k users
+      NOW() - INTERVAL FLOOR(RAND()*365) DAY
+    );
+    SET i = i + 1;
+  END WHILE;
+
+END$$
+
+DELIMITER ;
+
+CALL insert_orders();
+
+
+DELIMITER $$
+
+CREATE PROCEDURE insert_order_items()
+BEGIN
+  DECLARE i INT DEFAULT 1;
+
+  WHILE i <= 2000000 DO
+    INSERT INTO orderItem (order_id, product_id, quantity, price)
+    VALUES (
+      FLOOR(1 + RAND() * 2000000), -- match orders
+      FLOOR(1 + RAND() * 1000),
+      FLOOR(1 + RAND() * 5),
+      FLOOR(100 + RAND() * 10000)
+    );
+    SET i = i + 1;
+  END WHILE;
+
+END$$
+
+DELIMITER ;
+
+CALL insert_order_items();
+
+
+CREATE INDEX idx_orders_user_id 
+ON orders(user_id);
+
+
+CREATE INDEX idx_orders_status_date 
+ON orders(status, order_date);
+
+
+
+CREATE INDEX idx_orderItem_order_id 
+ON orderItem(order_id);
+
+CREATE INDEX idx_orderItem_product_id 
+ON orderItem(product_id);
+
+CREATE INDEX idx_orderItem_order_qty_price 
+ON orderItem(order_id, quantity, price);
+
+
+CREATE INDEX idx_cartItems_cart_id 
+ON cartItems(cart_id);
+
+
+CREATE INDEX idx_cartItems_product_id 
+ON cartItems(product_id);
+
+
+
+
+
+
+
+--   ERROR MESSAGE AND TOPIC EXPLANATION --  
+
+
+-- Q. Why INNER JOIN excludes unmatched data
+-- ANS:  An INNER JOIN only keeps rows where the match condition is true in both tables .
+-- unmatched data isn’t “ignored by accident”—it fails the condition, so it’s excluded.  
+-- If you want all users, even those without orders → use LEFT JOIN
+-- If you want everything from both sides, matched or not → use FULL JOIN
+-- If you only want matched data → stick with INNER JOIN
+
+-- Q2 Compare INNER JOIN vs LEFT JOIN
+
+-- Imagine you have two tables: one with users and one with orders. When you use an INNER JOIN, the result only shows users who actually have at least one matching order. It’s like saying, “only show me people who bought something.” Anyone who didn’t place an order simply disappears from the result, as if they never existed in the users table for that query.
+
+-- Now if you run the same scenario with a LEFT JOIN, the behavior changes. You’re now saying, “show me all users, and if they have orders, include those too.” So every user appears in the result. For users who don’t have any orders, their order-related columns will just show NULL instead of data. 
+-- They’re still present—you can see them—but there’s no matching record on the orders side.   
+
+-- Q3  Identify why joins create duplicates
+-- A JOIN doesn’t “merge” rows the way we expect—it combines every matching pair.
+-- So if one user has multiple matching rows in the other table, you don’t get one row—you get one row per match. 
+
+-- Q4  Effect of joining on wrong column
+-- A JOIN depends entirely on the column you use to connect the tables. If you join on the wrong column, the database will still happily combine rows—but it’s now matching based on the wrong logic.
+
+-- Think of it like matching people using the wrong key:
+-- You were supposed to match user_id to user_id
+-- But you accidentally matched user_id to order_id or maybe name to name
+-- Now the database starts pairing rows that were never meant to be related.
+-- Two common outcomes:
+-- Too many rows (data explosion)
+-- If the column isn’t unique, you’ll get a lot of unintended matches.
+-- Example: joining on name → every “John” matches every other “John”.
+-- Wrong or missing data
+-- If the columns don’t logically relate, you may get random matches or almost none at all. 
+
+-- Q5  Why indexes improve join performance
+
+-- When there’s no index on the join column, the database has no shortcut to find matching rows. So for every row in one table, it has to scan the entire other table to look for matches.
+-- That’s like trying to find a name in a phone book by reading every single page, again and again, for each person. It works—but it’s inefficient and slow.
+
+
+-- Q6  Filtering before vs after join
+
+-- A JOIN combines rows first, and filtering (WHERE) removes rows after that. But if you filter earlier (inside a subquery or in the JOIN condition), you reduce how much data even participates in the JOIN.
+
+-- So the difference is about when rows get eliminated:
+-- Filtering before JOIN → fewer rows enter the join
+-- Filtering after JOIN → more rows are joined, then removed later

@@ -1,0 +1,3132 @@
+create database ecommerce;
+use ecommerce;
+
+create table users(
+user_id CHAR(36) PRIMARY KEY DEFAULT (uuid()),
+first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100),
+
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(20) UNIQUE,
+
+    password_hash VARCHAR(255) NOT NULL,
+
+    is_email_verified BOOLEAN DEFAULT FALSE,
+    is_phone_verified BOOLEAN DEFAULT FALSE,
+
+    account_status ENUM(
+        'ACTIVE',
+        'INACTIVE',
+        'SUSPENDED',
+        'BANNED',
+        'PENDING_VERIFICATION'
+    ) DEFAULT 'PENDING_VERIFICATION',
+
+    last_login_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP 
+        DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL
+);
+
+
+CREATE TABLE roles (
+    role_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    role_name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+
+    is_system_role BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP 
+        ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE permissions (
+    permission_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    permission_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+
+    module_name VARCHAR(100) NOT NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE role_permissions (
+    role_permission_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    role_id CHAR(36) NOT NULL,
+    permission_id CHAR(36) NOT NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id)
+        ON DELETE CASCADE,
+
+    UNIQUE (role_id, permission_id)
+);
+
+
+
+CREATE TABLE user_roles (
+    user_role_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL,
+    role_id CHAR(36) NOT NULL,
+
+    assigned_by CHAR(36) NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (assigned_by) REFERENCES users(user_id)
+        ON DELETE SET NULL,
+
+    UNIQUE (user_id, role_id)
+);
+
+CREATE TABLE user_addresses (
+    address_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL,
+
+    address_type ENUM(
+        'HOME',
+        'WORK',
+        'BILLING',
+        'SHIPPING',
+        'OTHER'
+    ) DEFAULT 'HOME',
+
+    full_name VARCHAR(150) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+
+    address_line_1 VARCHAR(255) NOT NULL,
+    address_line_2 VARCHAR(255),
+
+    landmark VARCHAR(255),
+
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+
+    is_default BOOLEAN DEFAULT FALSE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE user_sessions (
+    session_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL,
+
+    refresh_token_hash VARCHAR(255) NOT NULL,
+
+    ip_address VARCHAR(45),
+    device_info TEXT,
+    user_agent TEXT,
+
+    is_active BOOLEAN DEFAULT TRUE,
+    revoked_at DATETIME NULL,
+
+    expires_at DATETIME NOT NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE password_reset_tokens (
+    reset_token_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL,
+
+    token_hash VARCHAR(255) NOT NULL,
+
+    expires_at DATETIME NOT NULL,
+
+    used_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE user_audit_logs (
+    audit_log_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL,
+
+    action_type VARCHAR(100) NOT NULL,
+
+    action_description TEXT,
+
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+
+    performed_by CHAR(36) NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (performed_by) REFERENCES users(user_id)
+        ON DELETE SET NULL
+);
+
+                                                             --    INDEXING --  
+                                                             
+                                                             
+-- USERS YABLE --
+
+CREATE UNIQUE INDEX idx_users_email ON users(EMAIL);
+CREATE UNIQUE INDEX idx_users_phone ON users(PHONE);
+CREATE INDEX idx_users_account_status ON users(ACCOUNT_STATUS); 
+CREATE INDEX idx_users_deleted_at ON users(deleted_at);
+
+CREATE UNIQUE INDEX idx_roles_name ON roles(ROLE_NAME);
+
+CREATE UNIQUE INDEX idx_permissions_name ON permissions(permission_name);
+
+CREATE INDEX idx_permissions_module_name
+    ON permissions(module_name);
+    
+    CREATE INDEX idx_role_permissions_role_id
+    ON role_permissions(role_id);
+
+CREATE INDEX idx_role_permissions_permission_id
+    ON role_permissions(permission_id);
+
+CREATE UNIQUE INDEX idx_role_permissions_unique
+    ON role_permissions(role_id, permission_id);
+    
+    
+    CREATE INDEX idx_user_roles_user_id
+    ON user_roles(user_id);
+
+CREATE INDEX idx_user_roles_role_id
+    ON user_roles(role_id);
+
+CREATE INDEX idx_user_roles_assigned_by
+    ON user_roles(assigned_by);
+
+CREATE UNIQUE INDEX idx_user_roles_unique
+    ON user_roles(user_id, role_id);
+    
+    CREATE INDEX idx_user_addresses_user_id
+    ON user_addresses(user_id);
+
+CREATE INDEX idx_user_addresses_default
+    ON user_addresses(user_id, is_default);
+
+CREATE INDEX idx_user_addresses_type
+    ON user_addresses(address_type);
+
+    
+    
+    
+    --   triggers --
+    
+    DELIMITER $$
+     CREATE TRIGGER trg_after_user_insert
+     AFTER INSERT  ON users
+     FOR EACH ROW
+     BEGIN
+       DECLARE default_role_id CHAR(36);
+       
+       SELECT ROLE_ID 
+       INTO default_role_id 
+       FROM roles
+       WHERE ROLE_NAME='USER'
+       LIMIT 1;
+       
+       INSERT INTO user_roles
+       (
+        user_role_id,
+        user_id,
+        role_id,
+        assigned_by,
+        created_at
+    )
+    VALUES(
+    uuid(),
+    NEW.USER_ID,
+    DEFAULT_ROLE_ID,
+    NULL,
+    NOW()
+    );
+    END $$
+    DELIMITER ;
+    
+     DELIMITER $$
+     CREATE TRIGGER trg_after_session_insert
+     AFTER INSERT ON user_sessions
+     FOR EACH ROW
+     BEGIN
+     UPDATE USERS
+     SET last_login_at = NOW()
+     WHERE USER_ID =NEW.USER_ID;
+     END $$
+     DELIMITER $$ ;
+     
+     
+DELIMITER $$
+
+CREATE TRIGGER trg_after_password_reset_insert
+AFTER INSERT ON password_reset_tokens
+FOR EACH ROW
+BEGIN
+    INSERT INTO user_audit_logs (
+        audit_log_id,
+        user_id,
+        action_type,
+        action_description,
+        ip_address,
+        user_agent,
+        performed_by,
+        created_at
+    )
+    VALUES (
+        UUID(),
+        NEW.user_id,
+        'PASSWORD_RESET_REQUESTED',
+        'User requested password reset token',
+        NULL,
+        NULL,
+        NULL,
+        NOW()
+    );
+END$$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_after_user_status_update
+AFTER UPDATE ON users
+FOR EACH ROW
+BEGIN
+    IF NEW.account_status IN ('SUSPENDED', 'BANNED')
+       AND OLD.account_status != NEW.account_status THEN
+
+        UPDATE user_sessions
+        SET 
+            is_active = FALSE,
+            revoked_at = NOW()
+        WHERE user_id = NEW.user_id
+          AND is_active = TRUE;
+
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+
+
+INSERT INTO roles (
+    role_id,
+    role_name,
+    description,
+    is_system_role,
+    created_at,
+    updated_at
+)
+VALUES
+(UUID(), 'USER', 'Regular customer account', TRUE, NOW(), NOW()),
+(UUID(), 'ADMIN', 'Platform administrator', TRUE, NOW(), NOW()),
+(UUID(), 'SELLER', 'Marketplace seller/vendor', TRUE, NOW(), NOW()),
+(UUID(), 'SUPPORT', 'Customer support staff', TRUE, NOW(), NOW());
+
+
+INSERT INTO permissions (
+    permission_id,
+    permission_name,
+    description,
+    module_name,
+    created_at,
+    updated_at
+)
+VALUES
+
+-- USER
+(UUID(), 'MANAGE_PROFILE', 'Manage own profile', 'USER', NOW(), NOW()),
+(UUID(), 'PLACE_ORDER', 'Place customer orders', 'ORDER', NOW(), NOW()),
+(UUID(), 'WRITE_REVIEW', 'Submit product reviews', 'REVIEW', NOW(), NOW()),
+
+-- SELLER
+(UUID(), 'CREATE_PRODUCT', 'Create new products', 'PRODUCT', NOW(), NOW()),
+(UUID(), 'UPDATE_PRODUCT', 'Update owned products', 'PRODUCT', NOW(), NOW()),
+(UUID(), 'MANAGE_INVENTORY', 'Manage inventory levels', 'INVENTORY', NOW(), NOW()),
+(UUID(), 'VIEW_OWN_ORDERS', 'View seller orders', 'ORDER', NOW(), NOW()),
+
+-- SUPPORT
+(UUID(), 'VIEW_USERS', 'View user accounts', 'USER', NOW(), NOW()),
+(UUID(), 'VIEW_ORDERS', 'View all orders', 'ORDER', NOW(), NOW()),
+(UUID(), 'PROCESS_RETURNS', 'Manage return requests', 'RETURN', NOW(), NOW()),
+
+-- ADMIN
+(UUID(), 'MANAGE_USERS', 'Manage all users', 'USER', NOW(), NOW()),
+(UUID(), 'MANAGE_SELLERS', 'Approve/manage sellers', 'SELLER', NOW(), NOW()),
+(UUID(), 'VIEW_ANALYTICS', 'Access analytics dashboards', 'ANALYTICS', NOW(), NOW()),
+(UUID(), 'ISSUE_REFUNDS', 'Process refunds', 'PAYMENT', NOW(), NOW()),
+(UUID(), 'FULL_PLATFORM_ACCESS', 'Full system control', 'SYSTEM', NOW(), NOW());
+
+
+INSERT INTO role_permissions (
+    role_permission_id,
+    role_id,
+    permission_id,
+    created_at
+)
+
+-- USER ROLE
+SELECT UUID(), r.role_id, p.permission_id, NOW()
+FROM roles r, permissions p
+WHERE r.role_name = 'USER'
+AND p.permission_name IN (
+    'MANAGE_PROFILE',
+    'PLACE_ORDER',
+    'WRITE_REVIEW'
+)
+
+UNION ALL
+
+-- SELLER ROLE
+SELECT UUID(), r.role_id, p.permission_id, NOW()
+FROM roles r, permissions p
+WHERE r.role_name = 'SELLER'
+AND p.permission_name IN (
+    'MANAGE_PROFILE',
+    'CREATE_PRODUCT',
+    'UPDATE_PRODUCT',
+    'MANAGE_INVENTORY',
+    'VIEW_OWN_ORDERS'
+)
+
+UNION ALL
+
+-- SUPPORT ROLE
+SELECT UUID(), r.role_id, p.permission_id, NOW()
+FROM roles r, permissions p
+WHERE r.role_name = 'SUPPORT'
+AND p.permission_name IN (
+    'VIEW_USERS',
+    'VIEW_ORDERS',
+    'PROCESS_RETURNS'
+)
+
+UNION ALL
+
+-- ADMIN ROLE
+SELECT UUID(), r.role_id, p.permission_id, NOW()
+FROM roles r, permissions p
+WHERE r.role_name = 'ADMIN';
+
+
+INSERT INTO users (
+    user_id,
+    first_name,
+    last_name,
+    email,
+    phone,
+    password_hash,
+    is_email_verified,
+    is_phone_verified,
+    account_status,
+    created_at,
+    updated_at
+)
+VALUES
+(UUID(), 'Aarav', 'Sharma', 'aarav.sharma1@example.com', '9000000001', '$2b$12$hash001', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Vivaan', 'Patel', 'vivaan.patel2@example.com', '9000000002', '$2b$12$hash002', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Aditya', 'Verma', 'aditya.verma3@example.com', '9000000003', '$2b$12$hash003', TRUE, FALSE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Vihaan', 'Singh', 'vihaan.singh4@example.com', '9000000004', '$2b$12$hash004', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Arjun', 'Gupta', 'arjun.gupta5@example.com', '9000000005', '$2b$12$hash005', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Sai', 'Kumar', 'sai.kumar6@example.com', '9000000006', '$2b$12$hash006', TRUE, FALSE, 'PENDING_VERIFICATION', NOW(), NOW()),
+(UUID(), 'Reyansh', 'Yadav', 'reyansh.yadav7@example.com', '9000000007', '$2b$12$hash007', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Krishna', 'Malhotra', 'krishna.malhotra8@example.com', '9000000008', '$2b$12$hash008', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Ishaan', 'Joshi', 'ishaan.joshi9@example.com', '9000000009', '$2b$12$hash009', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Shaurya', 'Mehta', 'shaurya.mehta10@example.com', '9000000010', '$2b$12$hash010', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Anaya', 'Kapoor', 'anaya.kapoor11@example.com', '9000000011', '$2b$12$hash011', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Diya', 'Bansal', 'diya.bansal12@example.com', '9000000012', '$2b$12$hash012', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Myra', 'Reddy', 'myra.reddy13@example.com', '9000000013', '$2b$12$hash013', TRUE, FALSE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Aadhya', 'Nair', 'aadhya.nair14@example.com', '9000000014', '$2b$12$hash014', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Pari', 'Iyer', 'pari.iyer15@example.com', '9000000015', '$2b$12$hash015', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Navya', 'Rao', 'navya.rao16@example.com', '9000000016', '$2b$12$hash016', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Sara', 'Desai', 'sara.desai17@example.com', '9000000017', '$2b$12$hash017', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Kiara', 'Chopra', 'kiara.chopra18@example.com', '9000000018', '$2b$12$hash018', TRUE, FALSE, 'PENDING_VERIFICATION', NOW(), NOW()),
+(UUID(), 'Meera', 'Saxena', 'meera.saxena19@example.com', '9000000019', '$2b$12$hash019', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Riya', 'Agarwal', 'riya.agarwal20@example.com', '9000000020', '$2b$12$hash020', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Kabir', 'Tiwari', 'kabir.tiwari21@example.com', '9000000021', '$2b$12$hash021', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Dhruv', 'Pillai', 'dhruv.pillai22@example.com', '9000000022', '$2b$12$hash022', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Rudra', 'Menon', 'rudra.menon23@example.com', '9000000023', '$2b$12$hash023', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Aryan', 'Chawla', 'aryan.chawla24@example.com', '9000000024', '$2b$12$hash024', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Yash', 'Khanna', 'yash.khanna25@example.com', '9000000025', '$2b$12$hash025', TRUE, FALSE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Saanvi', 'Mishra', 'saanvi.mishra26@example.com', '9000000026', '$2b$12$hash026', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Anika', 'Dubey', 'anika.dubey27@example.com', '9000000027', '$2b$12$hash027', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Ira', 'Sethi', 'ira.sethi28@example.com', '9000000028', '$2b$12$hash028', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Avni', 'Gill', 'avni.gill29@example.com', '9000000029', '$2b$12$hash029', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Tara', 'Arora', 'tara.arora30@example.com', '9000000030', '$2b$12$hash030', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Admin', 'One', 'admin1@ecommerce.com', '9000000031', '$2b$12$hash031', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Admin', 'Two', 'admin2@ecommerce.com', '9000000032', '$2b$12$hash032', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Seller', 'One', 'seller1@ecommerce.com', '9000000033', '$2b$12$hash033', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Seller', 'Two', 'seller2@ecommerce.com', '9000000034', '$2b$12$hash034', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Seller', 'Three', 'seller3@ecommerce.com', '9000000035', '$2b$12$hash035', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Support', 'One', 'support1@ecommerce.com', '9000000036', '$2b$12$hash036', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Support', 'Two', 'support2@ecommerce.com', '9000000037', '$2b$12$hash037', TRUE, TRUE, 'ACTIVE', NOW(), NOW()),
+(UUID(), 'Test', 'Suspended', 'suspended@ecommerce.com', '9000000038', '$2b$12$hash038', TRUE, TRUE, 'SUSPENDED', NOW(), NOW()),
+(UUID(), 'Test', 'Banned', 'banned@ecommerce.com', '9000000039', '$2b$12$hash039', TRUE, TRUE, 'BANNED', NOW(), NOW()),
+(UUID(), 'Guest', 'Pending', 'pending@ecommerce.com', '9000000040', '$2b$12$hash040', FALSE, FALSE, 'PENDING_VERIFICATION', NOW(), NOW());
+
+SELECT user_id, first_name, last_name, email, account_status
+FROM users;
+
+use ecommerce;
+CREATE TABLE categories (
+    category_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    parent_category_id CHAR(36) NULL,
+
+    category_name VARCHAR(150) NOT NULL,
+
+    slug VARCHAR(200) NOT NULL UNIQUE,
+
+    description TEXT NULL,
+
+    sort_order INT DEFAULT 0,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    FOREIGN KEY (parent_category_id)
+        REFERENCES categories(category_id)
+        ON DELETE SET NULL
+);
+
+
+CREATE TABLE brands (
+    brand_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    brand_name VARCHAR(150) NOT NULL UNIQUE,
+
+    slug VARCHAR(200) NOT NULL UNIQUE,
+
+    description TEXT NULL,
+
+    logo_url VARCHAR(500) NULL,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL
+);
+
+CREATE TABLE products (
+    product_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    seller_id CHAR(36) NOT NULL,
+
+    category_id CHAR(36) NOT NULL,
+
+    brand_id CHAR(36) NULL,
+
+    product_name VARCHAR(255) NOT NULL,
+
+    slug VARCHAR(300) NOT NULL UNIQUE,
+
+    description TEXT NULL,
+
+    product_type ENUM('PHYSICAL', 'DIGITAL') DEFAULT 'PHYSICAL',
+
+    status ENUM('DRAFT', 'ACTIVE', 'INACTIVE', 'REJECTED')
+        DEFAULT 'DRAFT',
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    FOREIGN KEY (seller_id) REFERENCES users(user_id),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (brand_id) REFERENCES brands(brand_id)
+);
+
+CREATE TABLE product_variants (
+    variant_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    product_id CHAR(36) NOT NULL,
+
+    sku VARCHAR(100) NOT NULL UNIQUE,
+
+    variant_name VARCHAR(255) NOT NULL,
+
+    price DECIMAL(10,2) NOT NULL,
+
+    compare_at_price DECIMAL(10,2) NULL,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    FOREIGN KEY (product_id)
+        REFERENCES products(product_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE inventory (
+    inventory_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    variant_id CHAR(36) NOT NULL UNIQUE,
+
+    quantity_available INT NOT NULL DEFAULT 0,
+
+    quantity_reserved INT DEFAULT 0,
+
+    reorder_level INT DEFAULT 5,
+
+    warehouse_location VARCHAR(255) NULL,
+
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (variant_id)
+        REFERENCES product_variants(variant_id)
+        ON DELETE CASCADE
+);
+
+
+CREATE TABLE product_images (
+    image_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    product_id CHAR(36) NOT NULL,
+
+    variant_id CHAR(36) NULL,
+
+    image_url VARCHAR(500) NOT NULL,
+
+    alt_text VARCHAR(255) NULL,
+
+    is_primary BOOLEAN DEFAULT FALSE,
+
+    sort_order INT DEFAULT 0,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id)
+        REFERENCES products(product_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (variant_id)
+        REFERENCES product_variants(variant_id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_categories_parent ON categories(parent_category_id);
+CREATE INDEX idx_categories_slug ON categories(slug);
+
+CREATE INDEX idx_brands_slug ON brands(slug);
+
+CREATE INDEX idx_products_seller ON products(seller_id);
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_brand ON products(brand_id);
+CREATE INDEX idx_products_status ON products(status);
+CREATE INDEX idx_products_slug ON products(slug);
+
+CREATE INDEX idx_variants_product ON product_variants(product_id);
+CREATE INDEX idx_variants_sku ON product_variants(sku);
+CREATE INDEX idx_variants_price ON product_variants(price);
+
+CREATE INDEX idx_inventory_variant ON inventory(variant_id);
+CREATE INDEX idx_inventory_stock ON inventory(quantity_available);
+
+CREATE INDEX idx_images_product ON product_images(product_id);
+CREATE INDEX idx_images_variant ON product_images(variant_id);
+CREATE INDEX idx_images_sort ON product_images(product_id, sort_order);
+
+
+CREATE VIEW product_catalog_view AS
+SELECT
+    p.product_id,
+    p.product_name,
+    p.slug,
+    p.status,
+
+    b.brand_name,
+    c.category_name,
+
+    MIN(v.price) AS min_price,
+    MAX(v.price) AS max_price
+
+FROM products p
+LEFT JOIN brands b ON p.brand_id = b.brand_id
+LEFT JOIN categories c ON p.category_id = c.category_id
+LEFT JOIN product_variants v ON p.product_id = v.product_id
+GROUP BY p.product_id;
+
+
+
+day6.txt
+use ecommerce;
+-- =========================================
+-- ORDERS
+-- =========================================
+CREATE TABLE orders (
+    order_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL,
+
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+
+    status ENUM(
+        'PENDING',
+        'CONFIRMED',
+        'PROCESSING',
+        'SHIPPED',
+        'DELIVERED',
+        'CANCELLED',
+        'RETURNED'
+    ) DEFAULT 'PENDING',
+
+    total_amount DECIMAL(10,2) NOT NULL,
+
+    payment_status ENUM(
+        'PENDING',
+        'PAID',
+        'FAILED',
+        'REFUNDED'
+    ) DEFAULT 'PENDING',
+
+    shipping_address_id CHAR(36) NOT NULL,
+
+    placed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cancelled_at DATETIME NULL,
+    delivered_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    CONSTRAINT fk_orders_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id),
+
+    CONSTRAINT fk_orders_shipping_address
+        FOREIGN KEY (shipping_address_id)
+        REFERENCES user_addresses(address_id),
+
+    CHECK (total_amount >= 0)
+);
+
+-- =========================================
+-- ORDER ITEMS
+-- =========================================
+CREATE TABLE order_items (
+    order_item_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    order_id CHAR(36) NOT NULL,
+
+    product_id CHAR(36) NOT NULL,
+
+    variant_id CHAR(36) NOT NULL,
+
+    quantity INT NOT NULL,
+
+    price DECIMAL(10,2) NOT NULL,
+
+    total DECIMAL(10,2) NOT NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_order_items_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(order_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_order_items_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(product_id),
+
+    CONSTRAINT fk_order_items_variant
+        FOREIGN KEY (variant_id)
+        REFERENCES product_variants(variant_id),
+
+    CHECK (quantity > 0),
+
+    CHECK (price >= 0),
+
+    CHECK (total >= 0)
+);
+
+-- =========================================
+-- PAYMENTS
+-- =========================================
+CREATE TABLE payments (
+    payment_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    order_id CHAR(36) NOT NULL,
+
+    payment_method ENUM(
+        'CARD',
+        'UPI',
+        'COD',
+        'WALLET'
+    ) NOT NULL,
+
+    payment_status ENUM(
+        'PENDING',
+        'SUCCESS',
+        'FAILED',
+        'REFUNDED'
+    ) DEFAULT 'PENDING',
+
+    transaction_reference VARCHAR(255) UNIQUE,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    paid_at DATETIME NULL,
+    failed_at DATETIME NULL,
+    refunded_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_payments_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(order_id)
+        ON DELETE CASCADE,
+
+    CHECK (amount >= 0)
+);
+
+-- =========================================
+-- SHIPMENTS
+-- =========================================
+CREATE TABLE shipments (
+    shipment_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    order_id CHAR(36) NOT NULL,
+
+    courier_name VARCHAR(100),
+
+    tracking_number VARCHAR(100) UNIQUE,
+
+    status ENUM(
+        'PENDING',
+        'SHIPPED',
+        'IN_TRANSIT',
+        'DELIVERED',
+        'FAILED',
+        'RETURNED'
+    ) DEFAULT 'PENDING',
+
+    shipped_at DATETIME NULL,
+    delivered_at DATETIME NULL,
+    failed_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_shipments_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(order_id)
+        ON DELETE CASCADE
+);
+
+-- =========================================
+-- INDEXING
+-- =========================================
+
+-- ORDERS
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_payment_status ON orders(payment_status);
+CREATE INDEX idx_orders_created_at ON orders(created_at);
+CREATE INDEX idx_orders_user_status ON orders(user_id, status);
+
+-- ORDER ITEMS
+CREATE INDEX idx_order_items_order ON order_items(order_id);
+CREATE INDEX idx_order_items_product ON order_items(product_id);
+CREATE INDEX idx_order_items_variant ON order_items(variant_id);
+
+-- PAYMENTS
+CREATE INDEX idx_payments_order ON payments(order_id);
+CREATE INDEX idx_payments_status ON payments(payment_status);
+CREATE INDEX idx_payments_txn ON payments(transaction_reference);
+
+-- SHIPMENTS
+CREATE INDEX idx_shipments_order ON shipments(order_id);
+CREATE INDEX idx_shipments_tracking ON shipments(tracking_number);
+CREATE INDEX idx_shipments_status ON shipments(status);
+
+-- =========================================
+-- TRIGGERS
+-- =========================================
+
+DELIMITER $$
+
+-- AUTO CALCULATE ORDER ITEM TOTAL
+CREATE TRIGGER trg_before_order_item_insert
+BEFORE INSERT ON order_items
+FOR EACH ROW
+BEGIN
+    SET NEW.total = NEW.quantity * NEW.price;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- UPDATE ORDER TOTAL AFTER ITEM INSERT
+CREATE TRIGGER trg_after_order_item_insert
+AFTER INSERT ON order_items
+FOR EACH ROW
+BEGIN
+    UPDATE orders
+    SET total_amount = (
+        SELECT COALESCE(SUM(total), 0)
+        FROM order_items
+        WHERE order_id = NEW.order_id
+    )
+    WHERE order_id = NEW.order_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- PAYMENT STATUS SYNC
+CREATE TRIGGER trg_after_payment_update
+AFTER UPDATE ON payments
+FOR EACH ROW
+BEGIN
+    IF NEW.payment_status = 'SUCCESS' THEN
+        UPDATE orders
+        SET payment_status = 'PAID'
+        WHERE order_id = NEW.order_id;
+    ELSEIF NEW.payment_status = 'FAILED' THEN
+        UPDATE orders
+        SET payment_status = 'FAILED'
+        WHERE order_id = NEW.order_id;
+    ELSEIF NEW.payment_status = 'REFUNDED' THEN
+        UPDATE orders
+        SET payment_status = 'REFUNDED'
+        WHERE order_id = NEW.order_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- SHIPMENT STATUS SYNC
+CREATE TRIGGER trg_after_shipment_update
+AFTER UPDATE ON shipments
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'DELIVERED' THEN
+        UPDATE orders
+        SET
+            status = 'DELIVERED',
+            delivered_at = NOW()
+        WHERE order_id = NEW.order_id;
+
+    ELSEIF NEW.status = 'SHIPPED' THEN
+        UPDATE orders
+        SET status = 'SHIPPED'
+        WHERE order_id = NEW.order_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- =========================================
+-- ORDER SUMMARY VIEW
+-- =========================================
+CREATE VIEW order_summary_view AS
+SELECT
+    o.order_id,
+    o.user_id,
+    o.order_number,
+    o.status,
+    o.total_amount,
+    o.payment_status,
+    o.created_at,
+
+    COUNT(oi.order_item_id) AS total_items,
+
+    SUM(oi.quantity) AS total_quantity,
+
+    MAX(p.payment_method) AS payment_method
+
+FROM orders o
+LEFT JOIN order_items oi
+    ON o.order_id = oi.order_id
+LEFT JOIN payments p
+    ON o.order_id = p.order_id
+
+WHERE o.deleted_at IS NULL
+
+GROUP BY
+    o.order_id,
+    o.user_id,
+    o.order_number,
+    o.status,
+    o.total_amount,
+    o.payment_status,
+    o.created_at;
+
+-- =========================================
+-- ORDER ITEM DETAIL VIEW
+-- =========================================
+CREATE VIEW order_item_detail_view AS
+SELECT
+    oi.order_item_id,
+    oi.order_id,
+    oi.product_id,
+    oi.variant_id,
+
+    oi.quantity,
+    oi.price,
+    oi.total,
+
+    p.product_name,
+    pv.variant_name,
+    pv.sku,
+
+    b.brand_name,
+    c.category_name
+
+FROM order_items oi
+JOIN products p
+    ON oi.product_id = p.product_id
+JOIN product_variants pv
+    ON oi.variant_id = pv.variant_id
+LEFT JOIN brands b
+    ON p.brand_id = b.brand_id
+LEFT JOIN categories c
+    ON p.category_id = c.category_id;
+    
+    
+    
+    -- =========================================
+-- ORDERS SEED DATA (30 Orders)
+-- =========================================
+
+INSERT INTO orders (
+    order_id,
+    user_id,
+    order_number,
+    status,
+    total_amount,
+    payment_status,
+    shipping_address_id,
+    placed_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    u.user_id,
+    CONCAT('ORD-', FLOOR(100000 + RAND() * 900000)),
+    ELT(
+        FLOOR(1 + RAND() * 5),
+        'PENDING',
+        'CONFIRMED',
+        'PROCESSING',
+        'SHIPPED',
+        'DELIVERED'
+    ),
+    0,
+    ELT(
+        FLOOR(1 + RAND() * 3),
+        'PENDING',
+        'PAID',
+        'FAILED'
+    ),
+    ua.address_id,
+    NOW() - INTERVAL FLOOR(RAND() * 60) DAY,
+    NOW(),
+    NOW()
+FROM users u
+JOIN user_addresses ua
+    ON u.user_id = ua.user_id
+WHERE u.email LIKE '%@example.com'
+LIMIT 30;
+
+-- =========================================
+-- ORDER ITEMS SEED DATA (2–4 Items Per Order)
+-- =========================================
+
+INSERT INTO order_items (
+    order_item_id,
+    order_id,
+    product_id,
+    variant_id,
+    quantity,
+    price,
+    total,
+    created_at
+)
+SELECT
+    UUID(),
+    o.order_id,
+    p.product_id,
+    pv.variant_id,
+    qty.quantity,
+    pv.price,
+    qty.quantity * pv.price,
+    NOW()
+FROM orders o
+JOIN (
+    SELECT
+        pv.variant_id,
+        pv.product_id,
+        pv.price
+    FROM product_variants pv
+    ORDER BY RAND()
+) pv
+JOIN products p
+    ON pv.product_id = p.product_id
+JOIN (
+    SELECT 1 AS quantity
+    UNION ALL SELECT 2
+    UNION ALL SELECT 3
+    UNION ALL SELECT 4
+) qty
+WHERE qty.quantity <= 2 + FLOOR(RAND() * 3)
+LIMIT 90;
+
+-- =========================================
+-- PAYMENTS SEED DATA
+-- =========================================
+
+INSERT INTO payments (
+    payment_id,
+    order_id,
+    payment_method,
+    payment_status,
+    transaction_reference,
+    amount,
+    paid_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    o.order_id,
+    ELT(
+        FLOOR(1 + RAND() * 4),
+        'CARD',
+        'UPI',
+        'COD',
+        'WALLET'
+    ),
+    CASE
+        WHEN o.payment_status = 'PAID' THEN 'SUCCESS'
+        WHEN o.payment_status = 'FAILED' THEN 'FAILED'
+        ELSE 'PENDING'
+    END,
+    CONCAT('TXN-', FLOOR(10000000 + RAND() * 90000000)),
+    o.total_amount,
+    CASE
+        WHEN o.payment_status = 'PAID' THEN NOW()
+        ELSE NULL
+    END,
+    NOW(),
+    NOW()
+FROM orders o;
+
+-- =========================================
+-- SHIPMENTS SEED DATA
+-- =========================================
+
+INSERT INTO shipments (
+    shipment_id,
+    order_id,
+    courier_name,
+    tracking_number,
+    status,
+    shipped_at,
+    delivered_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    o.order_id,
+    ELT(
+        FLOOR(1 + RAND() * 4),
+        'BlueDart',
+        'Delhivery',
+        'Ekart',
+        'DTDC'
+    ),
+    CONCAT('TRK-', FLOOR(100000000 + RAND() * 900000000)),
+    CASE
+        WHEN o.status = 'DELIVERED' THEN 'DELIVERED'
+        WHEN o.status = 'SHIPPED' THEN 'SHIPPED'
+        WHEN o.status = 'PROCESSING' THEN 'PENDING'
+        ELSE 'PENDING'
+    END,
+    CASE
+        WHEN o.status IN ('SHIPPED', 'DELIVERED') THEN NOW() - INTERVAL FLOOR(RAND() * 15) DAY
+        ELSE NULL
+    END,
+    CASE
+        WHEN o.status = 'DELIVERED' THEN NOW() - INTERVAL FLOOR(RAND() * 5) DAY
+        ELSE NULL
+    END,
+    NOW(),
+    NOW()
+FROM orders o;
+
+-- =========================================
+-- INVENTORY ADJUSTMENT AFTER SALES
+-- =========================================
+
+UPDATE inventory i
+JOIN (
+    SELECT
+        variant_id,
+        SUM(quantity) AS total_sold
+    FROM order_items
+    GROUP BY variant_id
+) oi
+ON i.variant_id = oi.variant_id
+SET
+    i.quantity_available = GREATEST(0, i.quantity_available - oi.total_sold),
+    i.updated_at = NOW();
+    
+    
+   
+
+-- =========================================
+-- VALIDATION QUERIES
+-- =========================================
+
+-- ORDER SUMMARY
+SELECT
+    COUNT(*) AS total_orders,
+    SUM(total_amount) AS total_revenue,
+    COUNT(CASE WHEN payment_status = 'PAID' THEN 1 END) AS paid_orders
+FROM orders;
+
+-- PAYMENT STATUS BREAKDOWN
+SELECT
+    payment_status,
+    COUNT(*) AS total
+FROM orders
+GROUP BY payment_status;
+
+-- SHIPMENT STATUS BREAKDOWN
+SELECT
+    status,
+    COUNT(*) AS total
+FROM shipments
+GROUP BY status;
+
+-- TOP PRODUCTS SOLD
+SELECT
+    p.product_name,
+    SUM(oi.quantity) AS total_units_sold
+FROM order_items oi
+JOIN products p
+    ON oi.product_id = p.product_id
+GROUP BY p.product_id, p.product_name
+ORDER BY total_units_sold DESC
+LIMIT 10;
+
+
+
+
+
+
+USE ecommerce;
+
+-- =========================================
+-- CART
+-- =========================================
+CREATE TABLE cart (
+    cart_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    user_id CHAR(36) NOT NULL UNIQUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    CONSTRAINT fk_cart_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+-- =========================================
+-- CART ITEMS
+-- =========================================
+CREATE TABLE cart_items (
+    cart_item_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    cart_id CHAR(36) NOT NULL,
+
+    product_id CHAR(36) NOT NULL,
+
+    variant_id CHAR(36) NOT NULL,
+
+    quantity INT NOT NULL DEFAULT 1,
+
+    price_at_added DECIMAL(10,2) NOT NULL,
+
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    CONSTRAINT fk_cart_items_cart
+        FOREIGN KEY (cart_id)
+        REFERENCES cart(cart_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_cart_items_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(product_id),
+
+    CONSTRAINT fk_cart_items_variant
+        FOREIGN KEY (variant_id)
+        REFERENCES product_variants(variant_id),
+
+    CHECK (quantity > 0),
+
+    CHECK (price_at_added >= 0),
+
+    UNIQUE (cart_id, variant_id)
+);
+
+-- =========================================
+-- INDEXING
+-- =========================================
+
+CREATE INDEX idx_cart_user
+    ON cart(user_id);
+
+CREATE INDEX idx_cart_items_cart
+    ON cart_items(cart_id);
+
+CREATE INDEX idx_cart_items_product
+    ON cart_items(product_id);
+
+CREATE INDEX idx_cart_items_variant
+    ON cart_items(variant_id);
+
+CREATE INDEX idx_cart_items_cart_variant
+    ON cart_items(cart_id, variant_id);
+
+-- =========================================
+-- TRIGGERS
+-- =========================================
+
+DELIMITER $$
+
+-- AUTO POPULATE PRODUCT PRICE
+CREATE TRIGGER trg_before_cart_item_insert
+BEFORE INSERT ON cart_items
+FOR EACH ROW
+BEGIN
+    DECLARE variant_price DECIMAL(10,2);
+
+    SELECT price
+    INTO variant_price
+    FROM product_variants
+    WHERE variant_id = NEW.variant_id
+    LIMIT 1;
+
+    SET NEW.price_at_added = variant_price;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- VALIDATE INVENTORY BEFORE ADDING TO CART
+CREATE TRIGGER trg_before_cart_item_quantity
+BEFORE INSERT ON cart_items
+FOR EACH ROW
+BEGIN
+    DECLARE available_stock INT;
+
+    SELECT quantity_available
+    INTO available_stock
+    FROM inventory
+    WHERE variant_id = NEW.variant_id
+    LIMIT 1;
+
+    IF available_stock < NEW.quantity THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'INSUFFICIENT_STOCK';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- =========================================
+-- CART SUMMARY VIEW
+-- =========================================
+CREATE VIEW cart_summary_view AS
+SELECT
+    c.cart_id,
+    c.user_id,
+
+    COUNT(ci.cart_item_id) AS total_items,
+
+    SUM(ci.quantity) AS total_quantity,
+
+    SUM(ci.quantity * ci.price_at_added) AS cart_total,
+
+    MAX(c.updated_at) AS last_updated
+
+FROM cart c
+LEFT JOIN cart_items ci
+    ON c.cart_id = ci.cart_id
+    AND ci.deleted_at IS NULL
+
+WHERE c.deleted_at IS NULL
+
+GROUP BY
+    c.cart_id,
+    c.user_id;
+
+-- =========================================
+-- CART ITEM DETAIL VIEW
+-- =========================================
+CREATE VIEW cart_item_detail_view AS
+SELECT
+    ci.cart_item_id,
+    ci.cart_id,
+    ci.product_id,
+    ci.variant_id,
+
+    p.product_name,
+    pv.variant_name,
+    pv.sku,
+
+    ci.quantity,
+    ci.price_at_added,
+
+    (ci.quantity * ci.price_at_added) AS line_total,
+
+    b.brand_name,
+    c.category_name,
+
+    ci.added_at
+
+FROM cart_items ci
+JOIN products p
+    ON ci.product_id = p.product_id
+JOIN product_variants pv
+    ON ci.variant_id = pv.variant_id
+LEFT JOIN brands b
+    ON p.brand_id = b.brand_id
+LEFT JOIN categories c
+    ON p.category_id = c.category_id
+
+WHERE ci.deleted_at IS NULL;
+
+
+
+
+INSERT INTO cart (
+    cart_id,
+    user_id,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    u.user_id,
+    NOW(),
+    NOW()
+FROM users u
+WHERE u.user_id IS NOT NULL
+LIMIT 30;
+
+INSERT INTO cart_items (
+    cart_item_id,
+    cart_id,
+    product_id,
+    variant_id,
+    quantity,
+    price_at_added,
+    added_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    c.cart_id,
+    pv.product_id,
+    pv.variant_id,
+    FLOOR(1 + RAND() * 5) AS quantity,
+    pv.price,
+    NOW(),
+    NOW()
+FROM cart c
+JOIN product_variants pv
+ORDER BY RAND()
+LIMIT 30;
+
+
+select * from cart_items      
+
+
+
+
+
+
+
+USE ecommerce;
+drop table payments;
+-- =========================================
+-- PAYMENTS
+-- =========================================
+CREATE TABLE payments (
+    payment_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    order_id CHAR(36) NOT NULL,
+
+    user_id CHAR(36) NOT NULL,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    currency VARCHAR(10) DEFAULT 'INR',
+
+    payment_method ENUM(
+        'UPI',
+        'CARD',
+        'NETBANKING',
+        'WALLET',
+        'COD'
+    ) NOT NULL,
+
+    status ENUM(
+        'INITIATED',
+        'PROCESSING',
+        'SUCCESS',
+        'FAILED',
+        'REFUNDED'
+    ) DEFAULT 'INITIATED',
+
+    gateway VARCHAR(50) NULL,
+
+    transaction_reference VARCHAR(255) UNIQUE,
+
+    gateway_order_reference VARCHAR(255) NULL,
+
+    failure_reason TEXT NULL,
+
+    paid_at DATETIME NULL,
+    failed_at DATETIME NULL,
+    refunded_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    CONSTRAINT fk_payments_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(order_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_payments_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CHECK (amount >= 0)
+);
+
+-- =========================================
+-- PAYMENT TRANSACTIONS
+-- =========================================
+CREATE TABLE payment_transactions (
+    transaction_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    payment_id CHAR(36) NOT NULL,
+
+    gateway_response TEXT NULL,
+
+    event_type VARCHAR(100) NOT NULL,
+
+    status ENUM(
+        'SUCCESS',
+        'FAILED',
+        'PENDING'
+    ) NOT NULL,
+
+    event_reference VARCHAR(255) NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_payment_transactions_payment
+        FOREIGN KEY (payment_id)
+        REFERENCES payments(payment_id)
+        ON DELETE CASCADE
+);
+
+-- =========================================
+-- INDEXING
+-- =========================================
+
+-- PAYMENTS
+CREATE INDEX idx_payments_order
+    ON payments(order_id);
+
+CREATE INDEX idx_payments_user
+    ON payments(user_id);
+
+CREATE INDEX idx_payments_status
+    ON payments(status);
+
+CREATE INDEX idx_payments_gateway
+    ON payments(gateway);
+
+CREATE INDEX idx_payments_txn_ref
+    ON payments(transaction_reference);
+
+CREATE INDEX idx_payments_created
+    ON payments(created_at);
+
+CREATE INDEX idx_payments_user_status
+    ON payments(user_id, status);
+
+CREATE INDEX idx_payments_order_status
+    ON payments(order_id, status);
+
+-- PAYMENT TRANSACTIONS
+CREATE INDEX idx_tx_payment
+    ON payment_transactions(payment_id);
+
+CREATE INDEX idx_tx_status
+    ON payment_transactions(status);
+
+CREATE INDEX idx_tx_event
+    ON payment_transactions(event_type);
+
+CREATE INDEX idx_tx_created
+    ON payment_transactions(created_at);
+
+-- =========================================
+-- TRIGGERS
+-- =========================================
+
+DELIMITER $$
+
+-- VALIDATE PAYMENT AMOUNT MATCHES ORDER TOTAL
+CREATE TRIGGER trg_before_payment_insert
+BEFORE INSERT ON payments
+FOR EACH ROW
+BEGIN
+    DECLARE order_total DECIMAL(10,2);
+
+    SELECT total_amount
+    INTO order_total
+    FROM orders
+    WHERE order_id = NEW.order_id
+    LIMIT 1;
+
+    IF NEW.amount <> order_total THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'PAYMENT_AMOUNT_MISMATCH';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- SYNC ORDER PAYMENT STATUS
+CREATE TRIGGER trg_after_payment_status_update
+AFTER UPDATE ON payments
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'SUCCESS' THEN
+        UPDATE orders
+        SET payment_status = 'PAID'
+        WHERE order_id = NEW.order_id;
+
+    ELSEIF NEW.status = 'FAILED' THEN
+        UPDATE orders
+        SET payment_status = 'FAILED'
+        WHERE order_id = NEW.order_id;
+
+    ELSEIF NEW.status = 'REFUNDED' THEN
+        UPDATE orders
+        SET payment_status = 'REFUNDED'
+        WHERE order_id = NEW.order_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- AUTO LOG PAYMENT TRANSACTION
+CREATE TRIGGER trg_after_payment_insert
+AFTER INSERT ON payments
+FOR EACH ROW
+BEGIN
+    INSERT INTO payment_transactions (
+        transaction_id,
+        payment_id,
+        gateway_response,
+        event_type,
+        status,
+        event_reference,
+        created_at
+    )
+    VALUES (
+        UUID(),
+        NEW.payment_id,
+        NULL,
+        'PAYMENT_CREATED',
+        'PENDING',
+        NEW.transaction_reference,
+        NOW()
+    );
+END$$
+
+DELIMITER ;
+
+-- =========================================
+-- PAYMENT SUMMARY VIEW
+-- =========================================
+CREATE VIEW payment_summary_view AS
+SELECT
+    p.payment_id,
+    p.order_id,
+    p.user_id,
+
+    p.amount,
+    p.currency,
+
+    p.status,
+    p.payment_method,
+
+    p.gateway,
+    p.transaction_reference,
+
+    p.created_at,
+    p.paid_at,
+
+    o.order_number,
+    o.status AS order_status,
+    o.total_amount AS order_total
+
+FROM payments p
+JOIN orders o
+    ON p.order_id = o.order_id
+
+WHERE p.deleted_at IS NULL;
+
+-- =========================================
+-- USER PAYMENT HISTORY VIEW
+-- =========================================
+CREATE VIEW user_payment_history_view AS
+SELECT
+    p.payment_id,
+    p.user_id,
+
+    u.first_name,
+    u.last_name,
+    u.email,
+
+    p.order_id,
+    o.order_number,
+
+    p.amount,
+    p.currency,
+
+    p.status,
+    p.payment_method,
+
+    p.gateway,
+    p.transaction_reference,
+
+    p.created_at,
+    p.paid_at
+
+FROM payments p
+JOIN users u
+    ON p.user_id = u.user_id
+JOIN orders o
+    ON p.order_id = o.order_id
+
+WHERE p.deleted_at IS NULL;
+
+-- =========================================
+-- PAYMENT ANALYTICS VIEW
+-- =========================================
+CREATE VIEW payment_analytics_view AS
+SELECT
+    payment_method,
+    status,
+
+    COUNT(payment_id) AS total_payments,
+
+    SUM(amount) AS total_amount,
+
+    AVG(amount) AS average_amount
+
+FROM payments
+
+WHERE deleted_at IS NULL
+
+GROUP BY
+    payment_method,
+    status;
+    
+    
+    
+    -- =========================================
+-- PAYMENTS SEED DATA
+-- =========================================
+
+INSERT INTO payments (
+    payment_id,
+    order_id,
+    user_id,
+    amount,
+    currency,
+    payment_method,
+    status,
+    gateway,
+    transaction_reference,
+    gateway_order_reference,
+    failure_reason,
+    paid_at,
+    failed_at,
+    refunded_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    o.order_id,
+    o.user_id,
+    o.total_amount,
+    'INR',
+
+    ELT(
+        FLOOR(1 + RAND() * 5),
+        'UPI',
+        'CARD',
+        'NETBANKING',
+        'WALLET',
+        'COD'
+    ),
+
+    CASE
+        WHEN o.payment_status = 'PAID' THEN 'SUCCESS'
+        WHEN o.payment_status = 'FAILED' THEN 'FAILED'
+        WHEN o.payment_status = 'REFUNDED' THEN 'REFUNDED'
+        ELSE 'INITIATED'
+    END,
+
+    ELT(
+        FLOOR(1 + RAND() * 4),
+        'RAZORPAY',
+        'STRIPE',
+        'PAYTM',
+        'PHONEPE'
+    ),
+
+    CONCAT('TXN-', FLOOR(100000000 + RAND() * 900000000)),
+
+    CONCAT('GATEWAY-ORD-', FLOOR(100000000 + RAND() * 900000000)),
+
+    CASE
+        WHEN o.payment_status = 'FAILED'
+        THEN 'Payment gateway authorization failure'
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN o.payment_status = 'PAID'
+        THEN o.created_at + INTERVAL FLOOR(1 + RAND() * 3) HOUR
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN o.payment_status = 'FAILED'
+        THEN o.created_at + INTERVAL FLOOR(1 + RAND() * 2) HOUR
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN o.payment_status = 'REFUNDED'
+        THEN o.updated_at
+        ELSE NULL
+    END,
+
+    o.created_at,
+    NOW()
+
+FROM orders o;
+
+-- =========================================
+-- PAYMENT TRANSACTIONS SEED DATA
+-- =========================================
+
+INSERT INTO payment_transactions (
+    transaction_id,
+    payment_id,
+    gateway_response,
+    event_type,
+    status,
+    event_reference,
+    created_at
+)
+SELECT
+    UUID(),
+    p.payment_id,
+
+    CASE
+        WHEN p.status = 'SUCCESS'
+        THEN '{"message":"Payment successful","code":"200"}'
+
+        WHEN p.status = 'FAILED'
+        THEN '{"message":"Payment failed","code":"500"}'
+
+        ELSE '{"message":"Payment initiated","code":"102"}'
+    END,
+
+    CASE
+        WHEN p.status = 'SUCCESS'
+        THEN 'PAYMENT_CAPTURED'
+
+        WHEN p.status = 'FAILED'
+        THEN 'PAYMENT_FAILED'
+
+        ELSE 'PAYMENT_CREATED'
+    END,
+
+    CASE
+        WHEN p.status = 'SUCCESS' THEN 'SUCCESS'
+        WHEN p.status = 'FAILED' THEN 'FAILED'
+        ELSE 'PENDING'
+    END,
+
+    p.transaction_reference,
+
+    p.created_at
+
+FROM payments p;
+
+-- =========================================
+-- VALIDATION QUERIES
+-- =========================================
+
+-- TOTAL PAYMENTS
+SELECT
+    COUNT(*) AS total_payments,
+    SUM(amount) AS total_payment_volume
+FROM payments;
+
+-- PAYMENT STATUS BREAKDOWN
+SELECT
+    status,
+    COUNT(*) AS total_count,
+    SUM(amount) AS total_amount
+FROM payments
+GROUP BY status;
+
+-- PAYMENT METHOD DISTRIBUTION
+SELECT
+    payment_method,
+    COUNT(*) AS total_transactions,
+    SUM(amount) AS total_amount
+FROM payments
+GROUP BY payment_method;
+
+-- GATEWAY PERFORMANCE
+SELECT
+    gateway,
+    status,
+    COUNT(*) AS total_transactions
+FROM payments
+GROUP BY gateway, status
+ORDER BY gateway;
+
+-- USER PAYMENT HISTORY SAMPLE
+SELECT
+    u.first_name,
+    u.last_name,
+    o.order_number,
+    p.amount,
+    p.payment_method,
+    p.status
+FROM payments p
+JOIN users u
+    ON p.user_id = u.user_id
+JOIN orders o
+    ON p.order_id = o.order_id
+ORDER BY p.created_at DESC
+LIMIT 20;
+
+
+
+USE ecommerce;
+
+-- =========================================
+-- RETURNS
+-- =========================================
+CREATE TABLE returns (
+    return_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    order_id CHAR(36) NOT NULL,
+
+    user_id CHAR(36) NOT NULL,
+
+    return_number VARCHAR(50) NOT NULL UNIQUE,
+
+    reason VARCHAR(255) NULL,
+
+    status ENUM(
+        'REQUESTED',
+        'APPROVED',
+        'REJECTED',
+        'PICKUP_SCHEDULED',
+        'PICKED',
+        'RECEIVED',
+        'COMPLETED',
+        'CANCELLED'
+    ) DEFAULT 'REQUESTED',
+
+    refund_status ENUM(
+        'PENDING',
+        'INITIATED',
+        'PROCESSING',
+        'COMPLETED',
+        'FAILED'
+    ) DEFAULT 'PENDING',
+
+    approved_at DATETIME NULL,
+    rejected_at DATETIME NULL,
+    completed_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    CONSTRAINT fk_returns_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(order_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_returns_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+-- =========================================
+-- RETURN ITEMS
+-- =========================================
+CREATE TABLE return_items (
+    return_item_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    return_id CHAR(36) NOT NULL,
+
+    order_item_id CHAR(36) NOT NULL,
+
+    quantity INT NOT NULL,
+
+    reason VARCHAR(255) NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_return_items_return
+        FOREIGN KEY (return_id)
+        REFERENCES returns(return_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_return_items_order_item
+        FOREIGN KEY (order_item_id)
+        REFERENCES order_items(order_item_id)
+        ON DELETE CASCADE,
+
+    CHECK (quantity > 0)
+);
+
+-- =========================================
+-- REFUNDS
+-- =========================================
+CREATE TABLE refunds (
+    refund_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    return_id CHAR(36) NOT NULL,
+
+    payment_id CHAR(36) NOT NULL,
+
+    refund_reference VARCHAR(255) UNIQUE,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    status ENUM(
+        'INITIATED',
+        'PROCESSING',
+        'SUCCESS',
+        'FAILED'
+    ) DEFAULT 'INITIATED',
+
+    gateway_reference VARCHAR(255) NULL,
+
+    initiated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    refunded_at DATETIME NULL,
+    failed_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_refunds_return
+        FOREIGN KEY (return_id)
+        REFERENCES returns(return_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_refunds_payment
+        FOREIGN KEY (payment_id)
+        REFERENCES payments(payment_id)
+        ON DELETE CASCADE,
+
+    CHECK (amount >= 0)
+);
+
+-- =========================================
+-- INDEXING
+-- =========================================
+
+-- RETURNS
+CREATE INDEX idx_returns_order
+    ON returns(order_id);
+
+CREATE INDEX idx_returns_user
+    ON returns(user_id);
+
+CREATE INDEX idx_returns_status
+    ON returns(status);
+
+CREATE INDEX idx_returns_refund_status
+    ON returns(refund_status);
+
+CREATE INDEX idx_returns_created
+    ON returns(created_at);
+
+-- RETURN ITEMS
+CREATE INDEX idx_return_items_return
+    ON return_items(return_id);
+
+CREATE INDEX idx_return_items_order_item
+    ON return_items(order_item_id);
+
+-- REFUNDS
+CREATE INDEX idx_refunds_return
+    ON refunds(return_id);
+
+CREATE INDEX idx_refunds_payment
+    ON refunds(payment_id);
+
+CREATE INDEX idx_refunds_status
+    ON refunds(status);
+
+CREATE INDEX idx_refunds_reference
+    ON refunds(refund_reference);
+
+-- =========================================
+-- TRIGGERS
+-- =========================================
+
+DELIMITER $$
+
+-- VALIDATE RETURN QUANTITY
+CREATE TRIGGER trg_before_return_item_insert
+BEFORE INSERT ON return_items
+FOR EACH ROW
+BEGIN
+    DECLARE ordered_quantity INT;
+
+    SELECT quantity
+    INTO ordered_quantity
+    FROM order_items
+    WHERE order_item_id = NEW.order_item_id
+    LIMIT 1;
+
+    IF NEW.quantity > ordered_quantity THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'RETURN_QUANTITY_EXCEEDS_ORDERED_QUANTITY';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- UPDATE RETURN REFUND STATUS AFTER REFUND SUCCESS
+CREATE TRIGGER trg_after_refund_update
+AFTER UPDATE ON refunds
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'SUCCESS' THEN
+        UPDATE returns
+        SET refund_status = 'COMPLETED'
+        WHERE return_id = NEW.return_id;
+
+    ELSEIF NEW.status = 'FAILED' THEN
+        UPDATE returns
+        SET refund_status = 'FAILED'
+        WHERE return_id = NEW.return_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- UPDATE ORDER STATUS AFTER RETURN COMPLETION
+CREATE TRIGGER trg_after_return_update
+AFTER UPDATE ON returns
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'COMPLETED' THEN
+        UPDATE orders
+        SET status = 'RETURNED'
+        WHERE order_id = NEW.order_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- =========================================
+-- RETURN SUMMARY VIEW
+-- =========================================
+CREATE VIEW return_summary_view AS
+SELECT
+    r.return_id,
+    r.return_number,
+
+    r.order_id,
+    o.order_number,
+
+    r.user_id,
+
+    r.reason,
+
+    r.status,
+    r.refund_status,
+
+    COUNT(ri.return_item_id) AS total_return_items,
+
+    SUM(ri.quantity) AS total_quantity_returned,
+
+    r.created_at,
+    r.updated_at
+
+FROM returns r
+JOIN orders o
+    ON r.order_id = o.order_id
+LEFT JOIN return_items ri
+    ON r.return_id = ri.return_id
+
+WHERE r.deleted_at IS NULL
+
+GROUP BY
+    r.return_id,
+    r.return_number,
+    r.order_id,
+    o.order_number,
+    r.user_id,
+    r.reason,
+    r.status,
+    r.refund_status,
+    r.created_at,
+    r.updated_at;
+
+-- =========================================
+-- REFUND SUMMARY VIEW
+-- =========================================
+CREATE VIEW refund_summary_view AS
+SELECT
+    rf.refund_id,
+    rf.refund_reference,
+
+    rf.return_id,
+    r.return_number,
+
+    rf.payment_id,
+
+    rf.amount,
+
+    rf.status,
+
+    rf.gateway_reference,
+
+    rf.initiated_at,
+    rf.refunded_at
+
+FROM refunds rf
+JOIN returns r
+    ON rf.return_id = r.return_id;
+
+-- =========================================
+-- USER RETURNS HISTORY VIEW
+-- =========================================
+CREATE VIEW user_returns_history_view AS
+SELECT
+    r.return_id,
+    r.return_number,
+
+    r.user_id,
+
+    u.first_name,
+    u.last_name,
+    u.email,
+
+    r.order_id,
+    o.order_number,
+
+    r.status,
+    r.refund_status,
+
+    r.reason,
+
+    r.created_at
+
+FROM returns r
+JOIN users u
+    ON r.user_id = u.user_id
+JOIN orders o
+    ON r.order_id = o.order_id
+
+WHERE r.deleted_at IS NULL;
+
+
+-- =========================================
+-- RETURNS SEED DATA (10–15 RETURNS)
+-- =========================================
+
+INSERT INTO returns (
+    return_id,
+    order_id,
+    user_id,
+    return_number,
+    reason,
+    status,
+    refund_status,
+    approved_at,
+    rejected_at,
+    completed_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    o.order_id,
+    o.user_id,
+
+    CONCAT('RET-', FLOOR(100000 + RAND() * 900000)),
+
+    ELT(
+        FLOOR(1 + RAND() * 5),
+        'Damaged product',
+        'Wrong item delivered',
+        'Quality issues',
+        'Size mismatch',
+        'Product not as described'
+    ),
+
+    ELT(
+        FLOOR(1 + RAND() * 5),
+        'REQUESTED',
+        'APPROVED',
+        'PICKUP_SCHEDULED',
+        'RECEIVED',
+        'COMPLETED'
+    ),
+
+    ELT(
+        FLOOR(1 + RAND() * 4),
+        'PENDING',
+        'INITIATED',
+        'PROCESSING',
+        'COMPLETED'
+    ),
+
+    NOW() - INTERVAL FLOOR(RAND() * 15) DAY,
+
+    NULL,
+
+    CASE
+        WHEN RAND() > 0.5
+        THEN NOW() - INTERVAL FLOOR(RAND() * 5) DAY
+        ELSE NULL
+    END,
+
+    NOW() - INTERVAL FLOOR(RAND() * 20) DAY,
+    NOW()
+
+FROM orders o
+WHERE o.status IN ('DELIVERED', 'RETURNED')
+LIMIT 12;
+
+-- =========================================
+-- RETURN ITEMS SEED DATA
+-- =========================================
+
+INSERT INTO return_items (
+    return_item_id,
+    return_id,
+    order_item_id,
+    quantity,
+    reason,
+    created_at
+)
+SELECT
+    UUID(),
+    r.return_id,
+    oi.order_item_id,
+
+    LEAST(
+        oi.quantity,
+        FLOOR(1 + RAND() * oi.quantity)
+    ),
+
+    r.reason,
+
+    NOW()
+
+FROM returns r
+JOIN order_items oi
+    ON r.order_id = oi.order_id
+LIMIT 20;
+
+-- =========================================
+-- REFUNDS SEED DATA
+-- =========================================
+
+INSERT INTO refunds (
+    refund_id,
+    return_id,
+    payment_id,
+    refund_reference,
+    amount,
+    status,
+    gateway_reference,
+    initiated_at,
+    refunded_at,
+    failed_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    r.return_id,
+    p.payment_id,
+
+    CONCAT('RFD-', FLOOR(100000000 + RAND() * 900000000)),
+
+    ROUND(
+        LEAST(
+            p.amount,
+            p.amount * (0.3 + RAND() * 0.7)
+        ),
+        2
+    ),
+
+    CASE
+        WHEN r.refund_status = 'COMPLETED' THEN 'SUCCESS'
+        WHEN r.refund_status = 'FAILED' THEN 'FAILED'
+        WHEN r.refund_status = 'PROCESSING' THEN 'PROCESSING'
+        ELSE 'INITIATED'
+    END,
+
+    CONCAT('GW-RFD-', FLOOR(100000000 + RAND() * 900000000)),
+
+    r.created_at + INTERVAL 1 DAY,
+
+    CASE
+        WHEN r.refund_status = 'COMPLETED'
+        THEN r.updated_at
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN r.refund_status = 'FAILED'
+        THEN r.updated_at
+        ELSE NULL
+    END,
+
+    NOW(),
+    NOW()
+
+FROM returns r
+JOIN payments p
+    ON r.order_id = p.order_id
+WHERE p.status IN ('SUCCESS', 'REFUNDED');
+
+-- =========================================
+-- INVENTORY RESTOCK AFTER RETURNS
+-- =========================================
+UPDATE inventory i
+JOIN (
+    SELECT
+        oi.variant_id,
+        SUM(ri.quantity) AS returned_qty
+    FROM return_items ri
+    JOIN order_items oi
+        ON ri.order_item_id = oi.order_item_id
+    GROUP BY oi.variant_id
+) returned_products
+ON i.variant_id = returned_products.variant_id
+SET
+    i.quantity_available = i.quantity_available + returned_products.returned_qty,
+    i.updated_at = NOW();
+
+-- =========================================
+-- VALIDATION QUERIES
+-- =========================================
+
+-- RETURNS STATUS BREAKDOWN
+SELECT
+    status,
+    COUNT(*) AS total_returns
+FROM returns
+GROUP BY status;
+
+-- REFUND STATUS BREAKDOWN
+SELECT
+    status,
+    COUNT(*) AS total_refunds,
+    SUM(amount) AS refund_volume
+FROM refunds
+GROUP BY status;
+
+-- TOP RETURN REASONS
+SELECT
+    reason,
+    COUNT(*) AS total_cases
+FROM returns
+GROUP BY reason
+ORDER BY total_cases DESC;
+
+-- USER RETURN HISTORY
+SELECT
+    u.first_name,
+    u.last_name,
+    r.return_number,
+    r.status,
+    r.refund_status
+FROM returns r
+JOIN users u
+    ON r.user_id = u.user_id
+ORDER BY r.created_at DESC
+LIMIT 20;
+
+USE ecommerce;
+
+-- =========================================
+-- COUPONS
+-- =========================================
+CREATE TABLE coupons (
+    coupon_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    code VARCHAR(50) NOT NULL UNIQUE,
+
+    description VARCHAR(255) NULL,
+
+    discount_type ENUM(
+        'PERCENT',
+        'FLAT'
+    ) NOT NULL,
+
+    discount_value DECIMAL(10,2) NOT NULL,
+
+    min_order_amount DECIMAL(10,2) DEFAULT 0,
+
+    max_discount_amount DECIMAL(10,2) NULL,
+
+    usage_limit INT NULL,
+    used_count INT DEFAULT 0,
+
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL,
+
+    CHECK (discount_value >= 0),
+    CHECK (min_order_amount >= 0),
+    CHECK (used_count >= 0),
+    CHECK (usage_limit IS NULL OR usage_limit >= used_count),
+    CHECK (end_date > start_date)
+);
+
+-- =========================================
+-- SEARCH INDEX
+-- =========================================
+CREATE TABLE search_index (
+    index_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    product_id CHAR(36) NOT NULL,
+
+    title TEXT,
+    description TEXT,
+
+    category_id CHAR(36) NULL,
+    brand_id CHAR(36) NULL,
+
+    price_min DECIMAL(10,2) NULL,
+    price_max DECIMAL(10,2) NULL,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_search_index_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(product_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_search_index_category
+        FOREIGN KEY (category_id)
+        REFERENCES categories(category_id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_search_index_brand
+        FOREIGN KEY (brand_id)
+        REFERENCES brands(brand_id)
+        ON DELETE SET NULL
+);
+
+-- =========================================
+-- SELLER WALLET
+-- =========================================
+CREATE TABLE seller_wallet (
+    wallet_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    seller_id CHAR(36) NOT NULL UNIQUE,
+
+    balance DECIMAL(10,2) DEFAULT 0,
+
+    total_earned DECIMAL(10,2) DEFAULT 0,
+
+    total_withdrawn DECIMAL(10,2) DEFAULT 0,
+
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_seller_wallet_user
+        FOREIGN KEY (seller_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CHECK (balance >= 0),
+    CHECK (total_earned >= 0),
+    CHECK (total_withdrawn >= 0)
+);
+
+-- =========================================
+-- PAYOUTS
+-- =========================================
+CREATE TABLE payouts (
+    payout_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    seller_id CHAR(36) NOT NULL,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    status ENUM(
+        'PENDING',
+        'PROCESSING',
+        'SUCCESS',
+        'FAILED'
+    ) DEFAULT 'PENDING',
+
+    bank_reference VARCHAR(255) NULL,
+
+    failure_reason TEXT NULL,
+
+    requested_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    processed_at DATETIME NULL,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_payouts_seller
+        FOREIGN KEY (seller_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE,
+
+    CHECK (amount > 0)
+);
+
+-- =========================================
+-- INDEXING
+-- =========================================
+
+-- COUPONS
+CREATE INDEX idx_coupons_code
+    ON coupons(code);
+
+CREATE INDEX idx_coupons_active
+    ON coupons(is_active);
+
+CREATE INDEX idx_coupons_date_range
+    ON coupons(start_date, end_date);
+
+-- SEARCH INDEX
+CREATE INDEX idx_search_product
+    ON search_index(product_id);
+
+CREATE INDEX idx_search_category
+    ON search_index(category_id);
+
+CREATE INDEX idx_search_brand
+    ON search_index(brand_id);
+
+CREATE INDEX idx_search_price
+    ON search_index(price_min, price_max);
+
+CREATE INDEX idx_search_active
+    ON search_index(is_active);
+
+-- SELLER WALLET
+CREATE INDEX idx_wallet_seller
+    ON seller_wallet(seller_id);
+
+-- PAYOUTS
+CREATE INDEX idx_payouts_seller
+    ON payouts(seller_id);
+
+CREATE INDEX idx_payouts_status
+    ON payouts(status);
+
+CREATE INDEX idx_payouts_requested
+    ON payouts(requested_at);
+
+-- =========================================
+-- TRIGGERS
+-- =========================================
+
+DELIMITER $$
+
+-- VALIDATE COUPON USAGE LIMIT
+CREATE TRIGGER trg_before_coupon_update
+BEFORE UPDATE ON coupons
+FOR EACH ROW
+BEGIN
+    IF NEW.usage_limit IS NOT NULL
+       AND NEW.used_count > NEW.usage_limit THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'COUPON_USAGE_LIMIT_EXCEEDED';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- VALIDATE SELLER WALLET BALANCE BEFORE PAYOUT
+CREATE TRIGGER trg_before_payout_insert
+BEFORE INSERT ON payouts
+FOR EACH ROW
+BEGIN
+    DECLARE wallet_balance DECIMAL(10,2);
+
+    SELECT balance
+    INTO wallet_balance
+    FROM seller_wallet
+    WHERE seller_id = NEW.seller_id
+    LIMIT 1;
+
+    IF wallet_balance < NEW.amount THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'INSUFFICIENT_WALLET_BALANCE';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- UPDATE WALLET AFTER SUCCESSFUL PAYOUT
+CREATE TRIGGER trg_after_payout_update
+AFTER UPDATE ON payouts
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'SUCCESS'
+       AND OLD.status <> 'SUCCESS' THEN
+
+        UPDATE seller_wallet
+        SET
+            balance = balance - NEW.amount,
+            total_withdrawn = total_withdrawn + NEW.amount,
+            updated_at = NOW()
+        WHERE seller_id = NEW.seller_id;
+
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- =========================================
+-- VIEWS
+-- =========================================
+
+-- COUPON SUMMARY
+CREATE VIEW coupon_summary_view AS
+SELECT
+    coupon_id,
+    code,
+    discount_type,
+    discount_value,
+    min_order_amount,
+    max_discount_amount,
+    usage_limit,
+    used_count,
+    is_active,
+    start_date,
+    end_date
+FROM coupons
+WHERE deleted_at IS NULL;
+
+-- PRODUCT SEARCH VIEW
+CREATE VIEW product_search_view AS
+SELECT
+    si.product_id,
+    p.product_name,
+    p.slug,
+
+    si.title,
+    si.description,
+
+    c.category_name,
+    b.brand_name,
+
+    si.price_min,
+    si.price_max,
+
+    si.is_active
+
+FROM search_index si
+JOIN products p
+    ON si.product_id = p.product_id
+LEFT JOIN categories c
+    ON si.category_id = c.category_id
+LEFT JOIN brands b
+    ON si.brand_id = b.brand_id;
+
+-- SELLER WALLET SUMMARY
+CREATE VIEW seller_wallet_summary_view AS
+SELECT
+    sw.wallet_id,
+    sw.seller_id,
+
+    u.first_name,
+    u.last_name,
+    u.email,
+
+    sw.balance,
+    sw.total_earned,
+    sw.total_withdrawn,
+
+    sw.updated_at
+
+FROM seller_wallet sw
+JOIN users u
+    ON sw.seller_id = u.user_id;
+
+-- PAYOUT HISTORY VIEW
+CREATE VIEW payout_history_view AS
+SELECT
+    p.payout_id,
+    p.seller_id,
+
+    u.first_name,
+    u.last_name,
+
+    p.amount,
+    p.status,
+
+    p.bank_reference,
+    p.failure_reason,
+
+    p.requested_at,
+    p.processed_at
+
+FROM payouts p
+JOIN users u
+    ON p.seller_id = u.user_id;
+    
+    
+    
+    -- =========================================
+-- COUPONS SEED DATA (15 Coupons)
+-- =========================================
+
+INSERT INTO coupons (
+    coupon_id,
+    code,
+    description,
+    discount_type,
+    discount_value,
+    min_order_amount,
+    max_discount_amount,
+    usage_limit,
+    used_count,
+    start_date,
+    end_date,
+    is_active,
+    created_at,
+    updated_at
+)
+VALUES
+(UUID(), 'WELCOME10', '10% off for new users', 'PERCENT', 10, 500, 1000, 500, 120, NOW() - INTERVAL 30 DAY, NOW() + INTERVAL 180 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'FLAT500', 'Flat ₹500 discount', 'FLAT', 500, 3000, NULL, 300, 90, NOW() - INTERVAL 15 DAY, NOW() + INTERVAL 120 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'MEGA20', '20% seasonal sale', 'PERCENT', 20, 2000, 3000, 1000, 250, NOW() - INTERVAL 20 DAY, NOW() + INTERVAL 90 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'SAVE100', 'Flat ₹100 off', 'FLAT', 100, 1000, NULL, 1000, 400, NOW() - INTERVAL 10 DAY, NOW() + INTERVAL 60 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'PREMIUM30', '30% premium customer offer', 'PERCENT', 30, 5000, 5000, 200, 50, NOW() - INTERVAL 5 DAY, NOW() + INTERVAL 45 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'FESTIVE15', 'Festive season discount', 'PERCENT', 15, 1500, 2500, 800, 200, NOW() - INTERVAL 12 DAY, NOW() + INTERVAL 75 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'NEWUSER50', '₹50 new signup bonus', 'FLAT', 50, 300, NULL, 1500, 600, NOW() - INTERVAL 25 DAY, NOW() + INTERVAL 365 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'APPONLY25', 'App exclusive discount', 'PERCENT', 25, 2500, 4000, 500, 140, NOW() - INTERVAL 8 DAY, NOW() + INTERVAL 50 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'WALLET5', 'Wallet payment cashback', 'PERCENT', 5, 1000, 500, 2000, 700, NOW() - INTERVAL 18 DAY, NOW() + INTERVAL 200 DAY, TRUE, NOW(), NOW()),
+(UUID(), 'BIGSALE40', 'Biggest annual sale', 'PERCENT', 40, 8000, 7000, 100, 20, NOW() - INTERVAL 3 DAY, NOW() + INTERVAL 20 DAY, TRUE, NOW(), NOW());
+
+-- =========================================
+-- SEARCH INDEX SEED DATA
+-- =========================================
+
+INSERT INTO search_index (
+    index_id,
+    product_id,
+    title,
+    description,
+    category_id,
+    brand_id,
+    price_min,
+    price_max,
+    is_active,
+    updated_at
+)
+SELECT
+    UUID(),
+    p.product_id,
+    p.product_name,
+    p.description,
+    p.category_id,
+    p.brand_id,
+    MIN(pv.price),
+    MAX(pv.price),
+    p.is_active,
+    NOW()
+FROM products p
+LEFT JOIN product_variants pv
+    ON p.product_id = pv.product_id
+GROUP BY
+    p.product_id,
+    p.product_name,
+    p.description,
+    p.category_id,
+    p.brand_id,
+    p.is_active;
+
+-- =========================================
+-- SELLER WALLET SEED DATA
+-- =========================================
+
+INSERT INTO seller_wallet (
+    wallet_id,
+    seller_id,
+    balance,
+    total_earned,
+    total_withdrawn,
+    updated_at,
+    created_at
+)
+SELECT
+    UUID(),
+    u.user_id,
+
+    ROUND(5000 + RAND() * 50000, 2),
+
+    ROUND(10000 + RAND() * 150000, 2),
+
+    ROUND(1000 + RAND() * 30000, 2),
+
+    NOW(),
+    NOW()
+
+FROM users u
+JOIN user_roles ur
+    ON u.user_id = ur.user_id
+JOIN roles r
+    ON ur.role_id = r.role_id
+WHERE r.role_name = 'SELLER';
+
+-- =========================================
+-- PAYOUTS SEED DATA
+-- =========================================
+
+INSERT INTO payouts (
+    payout_id,
+    seller_id,
+    amount,
+    status,
+    bank_reference,
+    failure_reason,
+    requested_at,
+    processed_at,
+    created_at,
+    updated_at
+)
+SELECT
+    UUID(),
+    sw.seller_id,
+
+    ROUND(1000 + RAND() * 15000, 2),
+
+    ELT(
+        FLOOR(1 + RAND() * 4),
+        'PENDING',
+        'PROCESSING',
+        'SUCCESS',
+        'FAILED'
+    ),
+
+    CONCAT('BANK-', FLOOR(100000000 + RAND() * 900000000)),
+
+    CASE
+        WHEN RAND() > 0.8
+        THEN 'Bank verification failed'
+        ELSE NULL
+    END,
+
+    NOW() - INTERVAL FLOOR(RAND() * 90) DAY,
+
+    CASE
+        WHEN RAND() > 0.4
+        THEN NOW() - INTERVAL FLOOR(RAND() * 30) DAY
+        ELSE NULL
+    END,
+
+    NOW(),
+    NOW()
+
+FROM seller_wallet sw
+CROSS JOIN (
+    SELECT 1
+    UNION ALL SELECT 2
+    UNION ALL SELECT 3
+) payout_multiplier;
+
+-- =========================================
+-- VALIDATION QUERIES
+-- =========================================
+
+-- ACTIVE COUPONS
+SELECT
+    code,
+    discount_type,
+    discount_value,
+    usage_limit,
+    used_count
+FROM coupons
+WHERE is_active = TRUE;
+
+-- SELLER WALLET OVERVIEW
+SELECT
+    COUNT(*) AS total_sellers,
+    SUM(balance) AS total_wallet_balance,
+    SUM(total_earned) AS total_earnings,
+    SUM(total_withdrawn) AS total_withdrawals
+FROM seller_wallet;
+-- PAYOUT STATUS BREAKDOWN
+SELECT
+    status,
+    COUNT(*) AS total_payouts,
+    SUM(amount) AS payout_volume
+FROM payouts
+GROUP BY status;
+
+-- PRODUCT SEARCH INDEX COUNT
+SELECT
+    COUNT(*) AS indexed_products
+FROM search_index;
+
+
+
+

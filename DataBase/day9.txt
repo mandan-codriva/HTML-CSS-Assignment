@@ -1,0 +1,616 @@
+create database transactions;
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL
+);
+
+
+CREATE TABLE accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    balance DECIMAL(12,2) CHECK (balance >= 0)
+);
+
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    from_account_id INT REFERENCES accounts(id),
+    to_account_id INT REFERENCES accounts(id),
+    amount DECIMAL(12,2) CHECK (amount > 0),
+    status VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Insert 20 users
+INSERT INTO users (name, email) VALUES
+('Alice Johnson', 'alice.johnson@example.com'),
+('Bob Smith', 'bob.smith@example.com'),
+('Charlie Brown', 'charlie.brown@example.com'),
+('Diana Prince', 'diana.prince@example.com'),
+('Ethan Hunt', 'ethan.hunt@example.com'),
+('Fiona Gallagher', 'fiona.gallagher@example.com'),
+('George Miller', 'george.miller@example.com'),
+('Hannah Davis', 'hannah.davis@example.com'),
+('Ian Wright', 'ian.wright@example.com'),
+('Julia Roberts', 'julia.roberts@example.com'),
+('Kevin Hart', 'kevin.hart@example.com'),
+('Laura Wilson', 'laura.wilson@example.com'),
+('Michael Scott', 'michael.scott@example.com'),
+('Nina Patel', 'nina.patel@example.com'),
+('Oscar Reed', 'oscar.reed@example.com'),
+('Paula Green', 'paula.green@example.com'),
+('Quentin Blake', 'quentin.blake@example.com'),
+('Rachel Adams', 'rachel.adams@example.com'),
+('Samuel Lee', 'samuel.lee@example.com'),
+('Tina Turner', 'tina.turner@example.com');
+
+-- Insert 20 accounts (1 per user)
+INSERT INTO accounts (user_id, balance) VALUES
+(1, 5000.00),
+(2, 3200.50),
+(3, 15000.75),
+(4, 800.00),
+(5, 12000.00),
+(6, 6700.25),
+(7, 980.40),
+(8, 4500.00),
+(9, 2200.10),
+(10, 9999.99),
+(11, 7600.60),
+(12, 3100.30),
+(13, 25000.00),
+(14, 400.50),
+(15, 8900.00),
+(16, 15750.75),
+(17, 6400.00),
+(18, 2780.45),
+(19, 13450.00),
+(20, 5600.90);
+
+-- Insert 50 transactions
+INSERT INTO transactions (from_account_id, to_account_id, amount, status, created_at) VALUES
+(1, 2, 150.00, 'completed', NOW() - INTERVAL '50 days'),
+(3, 4, 500.25, 'completed', NOW() - INTERVAL '49 days'),
+(5, 6, 1200.00, 'pending', NOW() - INTERVAL '48 days'),
+(7, 8, 75.40, 'failed', NOW() - INTERVAL '47 days'),
+(9, 10, 300.00, 'completed', NOW() - INTERVAL '46 days'),
+(11, 12, 640.50, 'completed', NOW() - INTERVAL '45 days'),
+(13, 14, 2500.00, 'completed', NOW() - INTERVAL '44 days'),
+(15, 16, 890.00, 'pending', NOW() - INTERVAL '43 days'),
+(17, 18, 450.75, 'completed', NOW() - INTERVAL '42 days'),
+(19, 20, 1000.00, 'failed', NOW() - INTERVAL '41 days'),
+
+(2, 3, 210.00, 'completed', NOW() - INTERVAL '40 days'),
+(4, 5, 99.99, 'completed', NOW() - INTERVAL '39 days'),
+(6, 7, 870.00, 'pending', NOW() - INTERVAL '38 days'),
+(8, 9, 45.00, 'completed', NOW() - INTERVAL '37 days'),
+(10, 11, 120.20, 'failed', NOW() - INTERVAL '36 days'),
+(12, 13, 3500.00, 'completed', NOW() - INTERVAL '35 days'),
+(14, 15, 60.00, 'pending', NOW() - INTERVAL '34 days'),
+(16, 17, 710.10, 'completed', NOW() - INTERVAL '33 days'),
+(18, 19, 220.00, 'completed', NOW() - INTERVAL '32 days'),
+(20, 1, 1300.00, 'failed', NOW() - INTERVAL '31 days'),
+
+(1, 5, 800.00, 'completed', NOW() - INTERVAL '30 days'),
+(2, 6, 1500.50, 'pending', NOW() - INTERVAL '29 days'),
+(3, 7, 250.75, 'completed', NOW() - INTERVAL '28 days'),
+(4, 8, 400.00, 'failed', NOW() - INTERVAL '27 days'),
+(5, 9, 980.00, 'completed', NOW() - INTERVAL '26 days'),
+(6, 10, 1100.25, 'completed', NOW() - INTERVAL '25 days'),
+(7, 11, 75.00, 'pending', NOW() - INTERVAL '24 days'),
+(8, 12, 620.40, 'completed', NOW() - INTERVAL '23 days'),
+(9, 13, 3000.00, 'failed', NOW() - INTERVAL '22 days'),
+(10, 14, 50.00, 'completed', NOW() - INTERVAL '21 days'),
+
+(11, 15, 450.00, 'completed', NOW() - INTERVAL '20 days'),
+(12, 16, 2700.75, 'pending', NOW() - INTERVAL '19 days'),
+(13, 17, 1250.00, 'completed', NOW() - INTERVAL '18 days'),
+(14, 18, 80.50, 'failed', NOW() - INTERVAL '17 days'),
+(15, 19, 910.00, 'completed', NOW() - INTERVAL '16 days'),
+(16, 20, 3300.00, 'completed', NOW() - INTERVAL '15 days'),
+(17, 1, 140.00, 'pending', NOW() - INTERVAL '14 days'),
+(18, 2, 260.60, 'completed', NOW() - INTERVAL '13 days'),
+(19, 3, 1750.00, 'failed', NOW() - INTERVAL '12 days'),
+(20, 4, 600.00, 'completed', NOW() - INTERVAL '11 days'),
+
+(1, 10, 2200.00, 'completed', NOW() - INTERVAL '10 days'),
+(2, 11, 130.75, 'pending', NOW() - INTERVAL '9 days'),
+(3, 12, 890.00, 'completed', NOW() - INTERVAL '8 days'),
+(4, 13, 150.00, 'failed', NOW() - INTERVAL '7 days'),
+(5, 14, 70.00, 'completed', NOW() - INTERVAL '6 days'),
+(6, 15, 540.00, 'completed', NOW() - INTERVAL '5 days'),
+(7, 16, 3200.00, 'pending', NOW() - INTERVAL '4 days'),
+(8, 17, 410.25, 'completed', NOW() - INTERVAL '3 days'),
+(9, 18, 95.50, 'failed', NOW() - INTERVAL '2 days'),
+(10, 19, 780.00, 'completed', NOW() - INTERVAL '1 days');
+
+SELECT * FROM accounts WHERE id IN (1,2);
+
+
+begin;
+	update accounts
+	set balance = balance-1000
+	where id=1 and balance>=1000;
+	
+	update accounts 
+	set balance = balance+1000
+	where id =2 ;
+	
+	INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status
+) VALUES (
+    1,
+    2,
+    1000,
+    'SUCCESS'
+);
+commit;
+
+SELECT * FROM accounts WHERE id IN (1,2);
+
+
+BEGIN;
+
+-- Step 1: Deduct sender balance
+UPDATE accounts
+SET balance = balance - 1000
+WHERE id = 1
+  AND balance >= 1000;
+
+-- Step 2: Simulated failure (invalid column)
+UPDATE accounts
+SET invalid_column = balance + 1000
+WHERE id = 2;
+
+ROLLBACK;
+
+BEGIN;
+
+UPDATE accounts
+SET balance = balance - 10000
+WHERE id = 14
+  AND balance >= 10000;
+
+-- Check if deduction succeeded
+-- If no rows updated, rollback
+ROLLBACK;
+
+ALTER TABLE transactions
+ADD COLUMN transaction_reference VARCHAR(100) UNIQUE;
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    transaction_reference
+) VALUES (
+    1,
+    2,
+    500.00,
+    'SUCCESS',
+    'TXN-100001'
+);
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    transaction_reference
+) VALUES (
+    1,
+    2,
+    500.00,
+    'SUCCESS',
+    'TXN-100001'
+);	
+
+
+
+BEGIN;
+
+UPDATE accounts
+SET balance = balance - 1000
+WHERE id = 1
+  AND balance >= 1000;
+
+UPDATE accounts
+SET balance = balance + 1000
+WHERE id = 2;
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    transaction_reference
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'SUCCESS',
+    'TXN-100002'
+);
+
+COMMIT;
+
+
+-- Transaction A
+BEGIN;
+
+-- Lock sender account
+SELECT * FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+UPDATE accounts
+SET balance = balance - 3000
+WHERE id = 1
+  AND balance >= 3000;
+
+UPDATE accounts
+SET balance = balance + 3000
+WHERE id = 2;
+
+COMMIT;
+
+
+
+-- Transaction B (runs simultaneously)
+BEGIN;
+
+-- Must wait until Transaction A completes
+SELECT * FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+UPDATE accounts
+SET balance = balance - 2500
+WHERE id = 1
+  AND balance >= 2500;
+
+UPDATE accounts
+SET balance = balance + 2500
+WHERE id = 3;
+
+COMMIT;
+
+
+
+-- Without FOR UPDATE:
+-- Both transactions may read same balance
+-- Overspending possible
+
+-- With FOR UPDATE:
+-- First transaction locks row
+-- Second waits
+-- Prevents race conditions
+-- Ensures safe balance usage
+
+
+
+ALTER TABLE transactions
+ADD CONSTRAINT valid_status
+CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED'));
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    created_at
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'PENDING',
+    CURRENT_TIMESTAMP
+)
+RETURNING id;
+
+SELECT * FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+UPDATE accounts
+SET balance = balance - 1000.00
+WHERE id = 1
+  AND balance >= 1000.00;
+
+
+UPDATE transactions
+SET status = 'FAILED'
+WHERE id = transaction_id
+
+UPDATE accounts
+SET balance = balance + 1000.00
+WHERE id = 2;
+
+UPDATE transactions
+SET status = 'SUCCESS'
+WHERE id = transaction_id;
+
+
+BEGIN;
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'PENDING'
+)
+RETURNING id;
+
+-- Deduct sender
+UPDATE accounts
+SET balance = balance - 1000
+WHERE id = 1
+  AND balance >= 1000;
+
+-- Simulated failure
+UPDATE accounts
+SET invalid_column = 0
+WHERE id = 2;
+
+-- Update status
+UPDATE transactions
+SET status = 'FAILED'
+WHERE id = transaction_id;
+
+ROLLBACK;
+
+
+SELECT
+    id,
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    created_at
+FROM transactions
+ORDER BY created_at DESC;
+
+
+
+ALTER TABLE transactions
+ADD COLUMN transaction_uuid UUID
+DEFAULT gen_random_uuid()
+UNIQUE;
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'PENDING'
+)
+RETURNING id, transaction_uuid;
+
+INSERT INTO transactions (
+    transaction_uuid,
+    from_account_id,
+    to_account_id,
+    amount,
+    status
+) VALUES (
+    '3f2d5b61-3c7d-4c90-9db1-0f2bc9e2a8f7',
+    1,
+    2,
+    1000.00,
+    'SUCCESS'
+);
+
+BEGIN;
+
+-- Insert transaction log first
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'PENDING'
+)
+RETURNING id, transaction_uuid;
+
+-- Lock sender
+SELECT * FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+-- Deduct sender
+UPDATE accounts
+SET balance = balance - 1000
+WHERE id = 1
+  AND balance >= 1000;
+
+-- Credit receiver
+UPDATE accounts
+SET balance = balance + 1000
+WHERE id = 2;
+
+-- Mark transaction successful
+UPDATE transactions
+SET status = 'SUCCESS'
+WHERE transaction_uuid = 'generated_uuid_here';
+
+COMMIT;
+
+
+
+BEGIN;
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status
+) VALUES (
+    1,
+    2,
+    5000.00,
+    'PENDING'
+)
+RETURNING transaction_uuid;
+
+-- Deduct sender
+UPDATE accounts
+SET balance = balance - 5000
+WHERE id = 1
+  AND balance >= 5000;
+
+-- Simulated failure
+UPDATE accounts
+SET invalid_column = 0
+WHERE id = 2;
+
+-- Mark failed
+UPDATE transactions
+SET status = 'FAILED'
+WHERE transaction_uuid = 'generated_uuid_here';
+
+ROLLBACK;
+
+
+
+
+SELECT
+    transaction_uuid,
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    created_at
+FROM transactions
+ORDER BY created_at DESC;
+
+
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+
+ALTER TABLE transactions
+ADD COLUMN IF NOT EXISTS transaction_uuid UUID
+DEFAULT gen_random_uuid()
+UNIQUE;
+
+ALTER TABLE transactions
+ADD COLUMN IF NOT EXISTS transaction_reference VARCHAR(150) UNIQUE;
+
+
+BEGIN;
+SELECT *
+FROM transactions
+WHERE transaction_reference = 'TXN-500001';
+
+
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    transaction_reference
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'PENDING',
+    'TXN-500001'
+)
+RETURNING id, transaction_uuid;
+
+SELECT *
+FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+
+UPDATE accounts
+SET balance = balance - 1000.00
+WHERE id = 1
+  AND balance >= 1000.00;
+
+UPDATE accounts
+SET balance = balance + 1000.00
+WHERE id = 2;
+UPDATE transactions
+SET status = 'SUCCESS'
+WHERE transaction_reference = 'TXN-500001';
+COMMIT;
+
+BEGIN;
+
+-- Insert pending log
+INSERT INTO transactions (
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    transaction_reference
+) VALUES (
+    1,
+    2,
+    1000.00,
+    'PENDING',
+    'TXN-500002'
+);
+
+-- Lock sender
+SELECT * FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+-- Deduct sender
+UPDATE accounts
+SET balance = balance - 1000
+WHERE id = 1
+  AND balance >= 1000;
+
+-- Simulated failure
+UPDATE accounts
+SET invalid_column = 0
+WHERE id = 2;
+
+-- Mark failed
+UPDATE transactions
+SET status = 'FAILED'
+WHERE transaction_reference = 'TXN-500002';
+ROLLBACK;
+
+
+
+SELECT
+    transaction_uuid,
+    transaction_reference,
+    from_account_id,
+    to_account_id,
+    amount,
+    status,
+    created_at
+FROM transactions
+ORDER BY created_at DESC;
+
+
+select * from users where email = '' or '1' = '1';
+
+
+
+	
