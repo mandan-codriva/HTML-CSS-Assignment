@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mountain View Resort details - StayEase">
+  <title>Mountain View Resort - StayEase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    const roomTourVideos = [
+      'VD9ILvEUX4A',      // Hotel room tour
+      'zCvTL-m58mY',      // Luxury hotel room
+      'aW1MvqjKTCQ',      // 5-star hotel walkthrough
+      'C1vDKrPqJTQ',      // Modern hotel suite
+      '9bZkp7q19f0',      // Resort room tour
+      'E0r2mUhHhFE',      // Boutique hotel room
+      'VD9ILvEUX4A',      // Premium suite
+      'ZxkEEjZgQag',      // Beachfront room
+      'zCvTL-m58mY',      // Luxury apartment
+      'aW1MvqjKTCQ',      // City hotel room
+      'C1vDKrPqJTQ'       // Resort suite
+    ];
+    function getRandomVideoId() {
+      return roomTourVideos[Math.floor(Math.random() * roomTourVideos.length)];
+    }
+    function updateVideoIframe() {
+      const iframes = document.querySelectorAll('iframe[data-video]');
+      iframes.forEach(iframe => {
+        iframe.src = `https://www.youtube.com/embed/${getRandomVideoId()}?rel=0&modestbranding=1`;
+      });
+    }
+    window.addEventListener('load', updateVideoIframe);
+  </script>
+</head>
+<body>
+<header class="navbar">
+  <div class="container nav-content">
+    <h1 class="logo"><span>Stay</span>Ease</h1>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="hotels.html" class="active">Hotels</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-buttons">
+      <a href="login.html" class="btn-outline">Login</a>
+      <a href="signup.html" class="btn-primary">Signup</a>
+    </div>
+  </div>
+</header>
+<main>
+<section class="hero-small">
+  <div class="overlay"></div>
+  <div class="container hero-content">
+    <h2>Mountain View Resort</h2>
+    <p>Rejuvenate with crisp mountain air, cozy suites, and a scenic room tour in Shimla’s serene hills.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="hotel-detail">
+      <div class="detail-card">
+        <img src="https://images.unsplash.com/photo-1517320964276-a002fa203177?auto=format&fit=crop&w=1400&q=80" alt="Mountain View Resort Room">
+        <div class="detail-body">
+          <h2>Welcome to Mountain View Resort</h2>
+          <p>Enjoy a tranquil hillside stay with cozy rooms, warm interiors, and scenic mountain vistas that soothe the soul.</p>
+          <div class="detail-meta">
+            <span>Hilltop escape</span>
+            <span>Fireplace rooms</span>
+            <span>Nature trails</span>
+          </div>
+          <div class="amenities">
+            <div class="amenity">Luxury cottages</div>
+            <div class="amenity">Spa therapies</div>
+            <div class="amenity">Forest views</div>
+            <div class="amenity">Dinner by fire</div>
+          </div>
+        </div>
+      </div>
+      <div class="hotel-description">
+        <h3>Cozy mountain luxury</h3>
+        <p>Experience all-season comfort with rustic elegance and personalized service. Perfect for couples, families, and mountain lovers.</p>
+        <div class="hotel-highlight">
+          <p>Warm alpine rooms with incredible views and premium comfort in every corner.</p>
+          <div class="price-tag">₹5,800 / night</div>
+        </div>
+      </div>
+    </div>
+    <div class="video-tour">
+      <div class="tour-intro">
+        <div>
+          <h3>Mountain View room tour</h3>
+          <p>Watch the room tour to see the cozy private suites, scenic balconies, and luxurious cabin-style comforts.</p>
+        </div>
+      </div>
+      <video src="public/15887137-uhd_3840_2160_30fps.mp4" title="Mountain View Resort Tour" autoplay muted loop playsinline preload="metadata"></video>
+    </div>
+  </div>
+</section>
+<section class="cta">
+  <div class="container cta-content">
+    <h2>Experience the mountain breeze</h2>
+    <a href="contact.html" class="cta-btn">Reserve your cottage</a>
+  </div>
+</section>
+</main>
+<footer class="footer">
+  <div class="footer-video-bg" aria-hidden="true">
+    <video src="public/14574394_3840_2160_60fps.mp4" autoplay muted loop playsinline preload="metadata"></video>
+  </div>
+
+  <div class="container footer-content">
+    <div class="footer-brand">
+      <h4><span>Stay</span>Ease</h4>
+      <p>Book handpicked hotels, coastal escapes, city stays, and peaceful resorts with smooth support from search to check-in.</p>
+      <div class="footer-badges">
+        <span>Best price deals</span>
+        <span>Secure booking</span>
+        <span>24/7 help</span>
+      </div>
+    </div>
+
+    <div class="footer-panel">
+      <h5>Explore</h5>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="hotels.html">Hotels</a>
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Signup</a>
+      </div>
+    </div>
+
+    <div class="footer-panel">
+      <h5>Contact</h5>
+      <ul class="footer-contact">
+        <li>New Delhi, India</li>
+        <li>support@stayease.com</li>
+        <li>+91 98765 43210</li>
+      </ul>
+      <a href="contact.html" class="footer-cta">Plan your stay</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 StayEase. All rights reserved.</p>
+    <p>Relaxed stays. Clear prices. Memorable trips.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -13,6 +13,31 @@
     />
 
     <link rel="stylesheet" href="style.css" />
+    <script>
+      const roomTourVideos = [
+        'VD9ILvEUX4A',      // Hotel room tour
+        'zCvTL-m58mY',      // Luxury hotel room
+        'aW1MvqjKTCQ',      // 5-star hotel walkthrough
+        'C1vDKrPqJTQ',      // Modern hotel suite
+        '9bZkp7q19f0',      // Resort room tour
+        'E0r2mUhHhFE',      // Boutique hotel room
+        'VD9ILvEUX4A',      // Premium suite
+        'ZxkEEjZgQag',      // Beachfront room
+        'zCvTL-m58mY',      // Luxury apartment
+        'aW1MvqjKTCQ',      // City hotel room
+        'C1vDKrPqJTQ'       // Resort suite
+      ];
+      function getRandomVideoId() {
+        return roomTourVideos[Math.floor(Math.random() * roomTourVideos.length)];
+      }
+      function updateVideoIframe() {
+        const iframes = document.querySelectorAll('iframe[data-video]');
+        iframes.forEach(iframe => {
+          iframe.src = `https://www.youtube.com/embed/${getRandomVideoId()}?rel=0&modestbranding=1`;
+        });
+      }
+      window.addEventListener('load', updateVideoIframe);
+    </script>
   </head>
 
   <body>
@@ -38,7 +63,7 @@
       <div class="container">
         <h2 class="section-title form-title">Welcome Back</h2>
 
-        <form class="form auth-form" action="#" method="POST">
+        <form class="form auth-form" id="loginForm" action="#" method="POST">
           <label for="email">Email Address</label>
           <input
             type="email"
@@ -69,7 +94,71 @@
     </section>
 
     <footer class="footer">
-      <p>© 2026 StayEase. All rights reserved.</p>
+  <div class="footer-video-bg" aria-hidden="true">
+    <video src="public/14574394_3840_2160_60fps.mp4" autoplay muted loop playsinline preload="metadata"></video>
+  </div>
+
+  <div class="container footer-content">
+    <div class="footer-brand">
+      <h4><span>Stay</span>Ease</h4>
+      <p>Book handpicked hotels, coastal escapes, city stays, and peaceful resorts with smooth support from search to check-in.</p>
+      <div class="footer-badges">
+        <span>Best price deals</span>
+        <span>Secure booking</span>
+        <span>24/7 help</span>
+      </div>
+    </div>
+
+    <div class="footer-panel">
+      <h5>Explore</h5>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="hotels.html">Hotels</a>
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Signup</a>
+      </div>
+    </div>
+
+    <div class="footer-panel">
+      <h5>Contact</h5>
+      <ul class="footer-contact">
+        <li>New Delhi, India</li>
+        <li>support@stayease.com</li>
+        <li>+91 98765 43210</li>
+      </ul>
+      <a href="contact.html" class="footer-cta">Plan your stay</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 StayEase. All rights reserved.</p>
+    <p>Relaxed stays. Clear prices. Memorable trips.</p>
+  </div>
     </footer>
+    <script>
+      document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value.trim().toLowerCase();
+        const password = document.getElementById("password").value;
+        const account = JSON.parse(localStorage.getItem("stayEaseAccount") || "null");
+
+        if (!account) {
+          alert("No account found. Please sign up first.");
+          window.location.href = "signup.html";
+          return;
+        }
+
+        if (account.email !== email || account.password !== password) {
+          alert("Invalid email or password.");
+          return;
+        }
+
+        localStorage.setItem("stayEaseLoggedIn", "true");
+        alert(`Welcome back, ${account.name}!`);
+        window.location.href = "index.html";
+      });
+    </script>
   </body>
 </html>

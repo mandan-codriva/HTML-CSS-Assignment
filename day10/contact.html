@@ -15,6 +15,31 @@
     />
 
     <link rel="stylesheet" href="style.css" />
+    <script>
+      const roomTourVideos = [
+        'VD9ILvEUX4A',      // Hotel room tour
+        'zCvTL-m58mY',      // Luxury hotel room
+        'aW1MvqjKTCQ',      // 5-star hotel walkthrough
+        'C1vDKrPqJTQ',      // Modern hotel suite
+        '9bZkp7q19f0',      // Resort room tour
+        'E0r2mUhHhFE',      // Boutique hotel room
+        'VD9ILvEUX4A',      // Premium suite
+        'ZxkEEjZgQag',      // Beachfront room
+        'zCvTL-m58mY',      // Luxury apartment
+        'aW1MvqjKTCQ',      // City hotel room
+        'C1vDKrPqJTQ'       // Resort suite
+      ];
+      function getRandomVideoId() {
+        return roomTourVideos[Math.floor(Math.random() * roomTourVideos.length)];
+      }
+      function updateVideoIframe() {
+        const iframes = document.querySelectorAll('iframe[data-video]');
+        iframes.forEach(iframe => {
+          iframe.src = `https://www.youtube.com/embed/${getRandomVideoId()}?rel=0&modestbranding=1`;
+        });
+      }
+      window.addEventListener('load', updateVideoIframe);
+    </script>
   </head>
 
   <body>
@@ -38,100 +63,121 @@
 
     <!-- BOOKING SECTION -->
     <section class="section form-section">
-      <div class="container">
-        <h2 class="section-title form-title">Book Your Stay</h2>
+      <div class="form-video-bg" aria-hidden="true">
+        <video src="public/14574394_3840_2160_60fps.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+
+      <div class="container booking-layout">
+        <div class="booking-info">
+          <span class="booking-kicker">Contact us</span>
+          <h2>Book Your Stay</h2>
+          <p>Tell us your dates, room preference, and special requests. Our team will help you finalize a comfortable stay with clear pricing and quick support.</p>
+
+          <div class="booking-points">
+            <div>
+              <strong>Quick confirmation</strong>
+              <span>We respond with availability and next steps.</span>
+            </div>
+            <div>
+              <strong>Flexible options</strong>
+              <span>Choose rooms, breakfast, pool access, and more.</span>
+            </div>
+            <div>
+              <strong>Direct assistance</strong>
+              <span>Call +91 98765 43210 for urgent bookings.</span>
+            </div>
+          </div>
+        </div>
 
         <form class="form booking-form" action="#" method="POST" novalidate>
-          <!-- FULL NAME -->
-          <label for="name">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            name="fullname"
-            placeholder="Enter your full name"
-            required
-            pattern="[A-Za-z ]{3,}"
-            title="Name should contain only letters and at least 3 characters"
-          />
-
-          <!-- EMAIL -->
-          <label for="email">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="example@email.com"
-            required
-          />
-
-          <!-- PHONE -->
-          <label for="phone">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="Enter 10-digit phone number"
-            required
-            pattern="[0-9]{10}"
-            maxlength="10"
-            title="Enter a valid 10-digit phone number"
-          />
-
-          <!-- CHECK-IN -->
-          <label for="checkin">Check-in Date</label>
-          <input type="date" id="checkin" name="checkin" required />
-
-          <!-- CHECK-OUT -->
-          <label for="checkout">Check-out Date</label>
-          <input type="date" id="checkout" name="checkout" required />
-
-          <!-- ROOM TYPE -->
-          <label for="room">Room Type</label>
-          <select id="room" name="room" required>
-            <option value="">Select Room Type</option>
-            <option value="deluxe">Deluxe Room</option>
-            <option value="suite">Executive Suite</option>
-            <option value="standard">Standard Room</option>
-          </select>
-
-          <!-- GENDER -->
-          <label>Gender</label>
-          <div class="inline options-group">
-            <label class="option-card">
-              <input type="radio" name="gender" value="male" required />
-              <span>Male</span>
-            </label>
-
-            <label class="option-card">
-              <input type="radio" name="gender" value="female" />
-              <span>Female</span>
-            </label>
+          <div class="form-heading">
+            <h3>Reservation Details</h3>
+            <p>Share a few details and we will prepare your stay.</p>
           </div>
 
-          <!-- EXTRAS -->
-          <label>Extras</label>
-          <div class="inline options-group">
-            <label class="option-card">
-              <input type="checkbox" name="extras" value="breakfast" />
-              <span>Breakfast</span>
-            </label>
+          <div class="form-row">
+            <div class="field">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" name="fullname" placeholder="Enter your full name" required pattern="[A-Za-z ]{3,}" title="Name should contain only letters and at least 3 characters" />
+            </div>
 
-            <label class="option-card">
-              <input type="checkbox" name="extras" value="pool" />
-              <span>Pool Access</span>
-            </label>
+            <div class="field">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="10-digit phone number" required pattern="[0-9]{10}" maxlength="10" title="Enter a valid 10-digit phone number" />
+            </div>
           </div>
 
-          <!-- SPECIAL REQUEST -->
-          <label for="message">Special Requests</label>
-          <textarea
-            id="message"
-            name="message"
-            rows="4"
-            placeholder="Any special requests or preferences..."
-          ></textarea>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="example@email.com" required />
+          </div>
 
-          <!-- SUBMIT -->
+          <div class="field date-group">
+            <div class="group-label">
+              <label>Booking Dates</label>
+              <span>Select your arrival and departure dates.</span>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="checkin">Check-in Date</label>
+                <input type="date" id="checkin" name="checkin" required />
+              </div>
+
+              <div class="field">
+                <label for="checkout">Check-out Date</label>
+                <input type="date" id="checkout" name="checkout" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="room">Room Type</label>
+            <select id="room" name="room" required>
+              <option value="">Select Room Type</option>
+              <option value="deluxe">Deluxe Room</option>
+              <option value="suite">Executive Suite</option>
+              <option value="standard">Standard Room</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Gender</label>
+              <div class="inline options-group">
+                <label class="option-card">
+                  <input type="radio" name="gender" value="male" required />
+                  <span>Male</span>
+                </label>
+
+                <label class="option-card">
+                  <input type="radio" name="gender" value="female" />
+                  <span>Female</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Extras</label>
+              <div class="inline options-group">
+                <label class="option-card">
+                  <input type="checkbox" name="extras" value="breakfast" />
+                  <span>Breakfast</span>
+                </label>
+
+                <label class="option-card">
+                  <input type="checkbox" name="extras" value="pool" />
+                  <span>Pool Access</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="message">Special Requests</label>
+            <textarea id="message" name="message" rows="4" placeholder="Any special requests or preferences..."></textarea>
+          </div>
+
           <button type="submit" class="btn booking-btn">Confirm Booking</button>
         </form>
       </div>
@@ -139,7 +185,47 @@
 
     <!-- FOOTER -->
     <footer class="footer">
-      <p>© 2026 StayEase. All rights reserved.</p>
-    </footer>
+  <div class="footer-video-bg" aria-hidden="true">
+    <video src="public/14574394_3840_2160_60fps.mp4" autoplay muted loop playsinline preload="metadata"></video>
+  </div>
+
+  <div class="container footer-content">
+    <div class="footer-brand">
+      <h4><span>Stay</span>Ease</h4>
+      <p>Book handpicked hotels, coastal escapes, city stays, and peaceful resorts with smooth support from search to check-in.</p>
+      <div class="footer-badges">
+        <span>Best price deals</span>
+        <span>Secure booking</span>
+        <span>24/7 help</span>
+      </div>
+    </div>
+
+    <div class="footer-panel">
+      <h5>Explore</h5>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="hotels.html">Hotels</a>
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Signup</a>
+      </div>
+    </div>
+
+    <div class="footer-panel">
+      <h5>Contact</h5>
+      <ul class="footer-contact">
+        <li>New Delhi, India</li>
+        <li>support@stayease.com</li>
+        <li>+91 98765 43210</li>
+      </ul>
+      <a href="contact.html" class="footer-cta">Plan your stay</a>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 StayEase. All rights reserved.</p>
+    <p>Relaxed stays. Clear prices. Memorable trips.</p>
+  </div>
+</footer>
   </body>
 </html>
